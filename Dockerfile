@@ -1,8 +1,8 @@
 FROM node
-WORKDIR /usr/src/app
-COPY package.json ./
-RUN npm install
+WORKDIR /app
+RUN mkdir api
+COPY api/package.json api/package.json
+RUN cd api && npm install
 COPY . .
-RUN npm run dev
 EXPOSE 3000
 CMD cd api && npm start
