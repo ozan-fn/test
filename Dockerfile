@@ -5,3 +5,4 @@ COPY api/package.json api/package.json
 RUN cd api && npm install
 COPY . .
 EXPOSE 3000
+CMD cd api && npm start
