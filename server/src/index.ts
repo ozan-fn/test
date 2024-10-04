@@ -2,7 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { join } from "path";
+import path from "path";
 
 const app = express();
 const server = createServer(app);
@@ -15,7 +15,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use(express.static(join(__dirname, "../../../dist")));
+app.use(express.static(path.join(__dirname, "../../dist")));
 
 app.get("/api", (req, res) => {
   try {
@@ -31,8 +31,8 @@ app.get("/api", (req, res) => {
   }
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(join(__dirname, "../../../dist/index.html"));
+app.use("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../dist/index.html"));
 });
 
 server.listen(3000, () => {
