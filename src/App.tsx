@@ -13,14 +13,14 @@ function App() {
   const [soilMoisture, setSoilMoisture] = useState(0);
 
   useEffect(() => {
-    const checkOffline = setTimeout(() => {
+    const checkOffline = setInterval(() => {
       if (pingResponse && new Date().getTime() - pingResponse.getTime() > 1000) {
         setIsOnline("");
         setSoilMoisture(0);
       }
     }, 1000); // Interval diperpanjang menjadi 2 detik
 
-    return () => clearTimeout(checkOffline);
+    return () => clearInterval(checkOffline);
   }, [pingResponse]);
 
   useEffect(() => {
