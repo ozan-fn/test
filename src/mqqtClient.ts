@@ -6,7 +6,7 @@ const client = mqtt.connect(connectUrl, { username: "ozan6825", password: "Akhma
 
 client.on("connect", () => {
   console.log("Connected");
-  client.subscribe("ping/response", (err) => {
+  client.subscribe(["ping/response", "sensor/soil_moisture"], (err) => {
     if (!err) {
       console.log("Subscribed to topic");
     }

@@ -9,13 +9,16 @@ import client from "./mqqtClient";
 function App() {
   const [pingResponse, setPingResponse] = useState<Date | null>(null);
   const [isOnline, setIsOnline] = useState("");
+  const [isSiram, setIsSiram] = useState(false);
+  const [soilMoisture, setSoilMoisture] = useState(0);
 
   useEffect(() => {
     const checkOffline = setTimeout(() => {
-      if (pingResponse && new Date().getTime() - pingResponse.getTime() > 5000) {
+      if (pingResponse && new Date().getTime() - pingResponse.getTime() > 2000) {
         setIsOnline("");
+        setSoilMoisture(0);
       }
-    }, 5000);
+    }, 1000); // Interval diperpanjang menjadi 2 detik
 
     return () => clearTimeout(checkOffline);
   }, [pingResponse]);
@@ -26,17 +29,23 @@ function App() {
         setPingResponse(new Date());
         setIsOnline(message.toString());
       }
+      if (topic === "sensor/soil_moisture") {
+        setSoilMoisture(Number(message.toString()));
+      }
     });
   }, []);
 
-  const sendWaterCommand = () => {
+  const sendWaterCommand = async () => {
+    setIsSiram(true);
     client.publish("control/water", "ON");
+    await new Promise((r) => setTimeout(r, 1000));
+    setIsSiram(false);
   };
 
   return (
     <>
-      <div className="font-poppins h-screen text-zinc-300" style={{ backgroundImage: `url(${bg})`, backgroundPositionY: "center", backgroundSize: "cover" }}>
-        <div className="flex h-full w-full flex-col gap-4 p-8 backdrop-blur-md">
+      <div className="font-poppins flex h-screen text-zinc-300" style={{ backgroundImage: `url(${bg})`, backgroundPositionY: "center", backgroundSize: "cover" }}>
+        <div className="flex flex-1 flex-col gap-4 p-8 backdrop-blur-md">
           {/* CONTENT */}
           <div className="container mx-auto">
             <div className="flex h-[30vh] w-full flex-col gap-6 overflow-auto rounded-md border border-white/20 p-6 lg:flex-row">
@@ -55,7 +64,13 @@ function App() {
           </div>
 
           <div className="container mx-auto flex flex-row items-center">
-            <motion.button onClick={sendWaterCommand} disabled={!isOnline} whileHover={{ scale: 1.1 }} transition={{ type: "spring" }} className="h-10 w-fit rounded-md bg-white/20 px-3">
+            <motion.button
+              onClick={sendWaterCommand}
+              disabled={!isOnline || isSiram}
+              whileHover={{ scale: 1.1 }}
+              transition={{ type: "spring" }}
+              className="h-10 w-fit rounded-md border border-white/20 bg-white/20 px-3 focus:bg-white/30"
+            >
               <p>SIRAM</p>
             </motion.button>
 
@@ -65,7 +80,7 @@ function App() {
             </motion.div>
           </div>
 
-          <div className="container mx-auto overflow-auto rounded-md border border-white/20 text-left">
+          {/* <div className="container mx-auto overflow-auto rounded-md border border-white/20 text-left">
             <table className="table w-full text-sm">
               <thead className="rounded-md bg-white/20">
                 <tr>
@@ -88,6 +103,21 @@ function App() {
                 })}
               </tbody>
             </table>
+          </div> */}
+
+          <p className="container mx-auto font-semibold">INFO</p>
+
+          <div className="container mx-auto flex flex-1">
+            <div className="flex h-fit w-full max-w-sm flex-col gap-2 rounded-md border border-white/20 p-4 md:max-w-md">
+              <div className="flex flex-row justify-between">
+                <p className="font-semibold">KELEMBABAN</p>
+                <p className="font-semibold">{soilMoisture > 100 ? 100 : soilMoisture}%</p>
+              </div>
+              <div className="relative h-8 w-full">
+                <div className="h-8 w-full rounded-md border border-white/20"></div>
+                <motion.div initial={{ width: "0%" }} animate={{ width: `${soilMoisture > 100 ? 100 : soilMoisture}%` }} transition={{ duration: 2 }} className="absolute inset-0 rounded-md bg-white/70" />
+              </div>
+            </div>
           </div>
 
           <div className="container mx-auto mt-auto flex h-14 shrink-0 items-center justify-center gap-4 rounded-md border border-white/20 px-3">
