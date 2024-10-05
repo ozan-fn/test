@@ -1,20 +1,15 @@
 import express from "express";
-import { createServer } from "http";
-import { Server } from "socket.io";
 import cors from "cors";
 import path from "path";
+import Ably from "ably";
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const ably = new Ably.Realtime({ key: "D5Q9YA.XPWRyg:hQ2pPBLh9tpMPZoAAUk8F_x1ej72xekOZyQ3Qbertsg" });
 
-app.use(cors({ origin: "*" }));
+app.use(cors());
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
+ably.connection.on("connected", () => {
+  console.log("Ably connected");
 });
 
 app.use(express.static(path.join(__dirname, "../../dist")));
@@ -26,7 +21,8 @@ app.get("/api", (req, res) => {
       res.sendStatus(400);
       return;
     }
-    io.emit("v", v);
+    const channel = ably.channels.get("test");
+    channel.publish("v", v);
     res.sendStatus(200);
   } catch {
     res.sendStatus(500);
@@ -37,6 +33,7 @@ app.use("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../../dist/index.html"));
 });
 
-server.listen(3000, () => {
-  console.log("listening on *:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
