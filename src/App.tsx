@@ -14,7 +14,7 @@ function App() {
 
   useEffect(() => {
     const checkOffline = setTimeout(() => {
-      if (pingResponse && new Date().getTime() - pingResponse.getTime() > 2000) {
+      if (pingResponse && new Date().getTime() - pingResponse.getTime() > 1000) {
         setIsOnline("");
         setSoilMoisture(0);
       }
@@ -44,7 +44,7 @@ function App() {
 
   return (
     <>
-      <div className="font-poppins flex h-screen text-zinc-300" style={{ backgroundImage: `url(${bg})`, backgroundPositionY: "center", backgroundSize: "cover" }}>
+      <div className="flex h-screen font-poppins text-zinc-300" style={{ backgroundImage: `url(${bg})`, backgroundPositionY: "center", backgroundSize: "cover" }}>
         <div className="flex flex-1 flex-col gap-4 p-8 backdrop-blur-md">
           {/* CONTENT */}
           <div className="container mx-auto">
