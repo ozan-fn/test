@@ -20,6 +20,7 @@ export default function Home() {
                 setConnected(true);
             } else {
                 setConnected(false);
+                setMoisture(0);
             }
         }, 1000);
 
@@ -48,7 +49,6 @@ export default function Home() {
         });
 
         client.on("offline", () => {
-            setMoisture(0);
             console.log("Disconnected from MQTT broker");
         });
 
@@ -57,7 +57,9 @@ export default function Home() {
         });
 
         return () => {
-            client.connected && client.end();
+            if (client.connected) {
+                client.end();
+            }
         };
     }, []);
 
