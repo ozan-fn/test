@@ -1,2 +1,2 @@
 <?php
-echo "Selamat datang di ozan.my.id!";
+echo "Selamat datang di ozan.my.id!a";
