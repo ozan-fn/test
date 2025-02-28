@@ -19,11 +19,7 @@ jobs:
         
       - name: Check for composer.json and run composer install if needed
         run: |
-          if [ ! -d "vendor" ]; then
-            composer install --no-interaction --prefer-dist --optimize-autoloader;
-          else
-            echo "Vendor directory exists, skipping composer install.";
-          fi
+          composer install --no-interaction --prefer-dist --optimize-autoloader;
         
       - name: Create vendor.zip
         run: zip -r vendor.zip vendor
@@ -34,4 +30,4 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
-          exclude: 'vendor/**'
+          exclude: 'vendor/**,.git/**'
