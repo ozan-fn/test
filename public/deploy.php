@@ -9,7 +9,7 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
 }
 
 $commands = [
-    "php ./public/composer.phar install --no-dev --optimize-autoloader --no-cache", // Install composer tanpa dev dependencies
+    "COMPOSER_HOME=./composer_home php ./public/composer.phar install --no-dev --optimize-autoloader --no-cache",
     'php artisan migrate --force', // Jalankan migrate tanpa konfirmasi
     'php artisan storage:link',
     'php artisan optimize', // Optimize autoloader
