@@ -1,8 +1,7 @@
 <?php
-$out = shell_exec(
-    'cd .. && ' .
-        'php artisan optimize 2>&1'
-);
+$command = 'php artisan optimize';
+$escapedCommand = escapeshellcmd($command);
+$out = shell_exec('cd .. && ' . $escapedCommand . ' 2>&1');
 ?>
 
 <!DOCTYPE html>
