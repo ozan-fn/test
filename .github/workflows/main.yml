@@ -10,5 +10,5 @@ jobs:
       - name: Deploy to cPanel
         run: |
           curl --location --request POST 'https://ozan.my.id:2083/execute/VersionControl/update' \
-          --header 'Authorization: cpanel username:${{ secrets.CPANEL_API_KEY }}' \
+          --header 'Authorization: cpanel nbobimkb:${{ secrets.CPANEL_API_KEY }}' \
           --header 'Content-Type: application/json'
