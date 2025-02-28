@@ -8,7 +8,7 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
 }
 
 $commands = [
-    'php ../composer.phar install --no-dev --optimize-autoloader', // Install composer tanpa dev dependencies
+    'php ./public/composer.phar install --no-dev --optimize-autoloader', // Install composer tanpa dev dependencies
     'php artisan migrate --force', // Jalankan migrate tanpa konfirmasi
     'php artisan storage:link',
     'php artisan optimize', // Optimize autoloader
