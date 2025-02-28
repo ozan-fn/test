@@ -1,8 +1,8 @@
 <?php
 $out = shell_exec(
     'cd .. && ' .
-        'HOME=$PWD ' .
-        'echo ~/ 2>&1'
+        'HOME=~/ ' .
+        'php ./public/composer.phar install -o 2>&1'
 );
 ?>
 
