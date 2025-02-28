@@ -1,7 +1,7 @@
 <?php
 $out = shell_exec(
     'cd .. && ' .
-        'php artisan migrate --force 2>&1'
+        'php optimize 2>&1'
 );
 ?>
 
