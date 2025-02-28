@@ -30,4 +30,6 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
-          exclude: 'vendor/**,.git/**'
+          exclude:
+            - 'vendor/**'
+            - '.git/**'
