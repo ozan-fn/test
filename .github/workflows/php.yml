@@ -25,9 +25,13 @@ jobs:
             echo "Vendor directory exists, skipping composer install.";
           fi
         
-      - name: Sync files via FTP
+      - name: Create vendor.zip
+        run: zip -r vendor.zip vendor
+
+      - name: Sync files via FTP excluding vendor directory
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
+          exclude: 'vendor/**'
