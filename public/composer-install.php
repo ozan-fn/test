@@ -4,7 +4,7 @@ $composerPath = realpath(__DIR__ . '/../composer.phar');
 
 // Pastikan path composer.phar ada dan valid
 if ($composerPath) {
-    // Menyiapkan perintah untuk menjalankan Composer
+    // Menyiapkan perintah untuk menjalankan Composer di dalam satu shell
     $command = "export COMPOSER_HOME=$PWD && php $composerPath install --no-dev --optimize-autoloader";
 
     // Escape command untuk shell_exec
