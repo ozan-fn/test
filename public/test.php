@@ -1,7 +1,7 @@
 <?php
 // Use getenv() to access environment variables
-$basedir = getenv('BASEDIR'); // Replace 'BASEDIR' with the actual environment variable you want to access
-$home = getenv('HOME');
+$basedir = getenv('USER'); // Replace 'BASEDIR' with the actual environment variable you want to access
+$home = getenv('PWD');
 
 // Output the variables
 echo $basedir . "\n";
