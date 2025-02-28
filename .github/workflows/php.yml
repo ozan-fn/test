@@ -25,9 +25,12 @@ jobs:
         run: zip -r vendor.zip vendor
 
       - name: Sync files via FTP excluding vendor directory
-        uses: anvil-solutions/Fast-FTP-Action@2.1.3
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
+          password: ${{ secrets.FTP_PASS }}          
+          exclude: |
+            .git/
+            vendor/
           
