@@ -1,3 +1,3 @@
 <?php
-$username = trim(shell_exec('whoami'));
-echo "/home/$username";
+$user_info = posix_getpwuid(posix_geteuid());
+echo $user_info['dir']; // Contoh output: /home/username
