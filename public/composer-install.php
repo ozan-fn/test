@@ -1,5 +1,5 @@
 <?php
-$command = 'php composer.phar install --no-dev --optimize-autoloader';
+$command = 'export COMPOSER_HOME=$PWD && php composer.phar install --no-dev --optimize-autoloader';
 $escapedCommand = escapeshellcmd($command);
 $out = shell_exec('cd .. && ' . $escapedCommand . ' 2>&1');
 ?>
