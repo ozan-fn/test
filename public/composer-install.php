@@ -1,7 +1,7 @@
 <?php
 $out = shell_exec(
     'cd .. && ' .
-        'php optimize 2>&1'
+        'php artisan optimize 2>&1'
 );
 ?>
 
