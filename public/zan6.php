@@ -1,2 +1,5 @@
 <?php
-echo shell_exec('php composer.phar --version >2&1');
+
+$output = shell_exec('git reset --hard origin/master 2>&1');
+
+echo "<pre>$output</pre>";
