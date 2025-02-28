@@ -1,3 +1,3 @@
 <?php
-$username = trim(shell_exec('whoami'));
+$username = shell_exec('whoami');
 echo "/home/$username";
