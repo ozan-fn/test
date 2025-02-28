@@ -1,22 +1,20 @@
 <?php
-$command = 'export COMPOSER_HOME=$PWD && php composer.phar install --no-dev --optimize-autoloader';
-$escapedCommand = escapeshellcmd($command);
-$out = shell_exec('cd .. && ' . $escapedCommand . ' 2>&1');
-?>
+// Path relatif ke composer.phar
+$composerPath = realpath(__DIR__ . '/../composer.phar');
 
-<!DOCTYPE html>
-<html lang="en">
+// Pastikan path composer.phar ada dan valid
+if ($composerPath) {
+    // Menyiapkan perintah untuk menjalankan Composer
+    $command = "export COMPOSER_HOME=$PWD && php $composerPath install --no-dev --optimize-autoloader";
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+    // Escape command untuk shell_exec
+    $escapedCommand = escapeshellcmd($command);
 
-<body>
-    <pre>
-        <?php echo htmlspecialchars($out, ENT_QUOTES, 'UTF-8'); ?>
-    </pre>
-</body>
+    // Jalankan perintah dengan shell_exec dari folder satu level atas
+    $out = shell_exec('cd .. && ' . $escapedCommand . ' 2>&1');
 
-</html>
+    // Menampilkan output perintah
+    echo "<pre>$out</pre>";
+} else {
+    echo "Composer tidak ditemukan di lokasi yang diharapkan.";
+}
