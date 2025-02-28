@@ -1,8 +1,7 @@
 <?php
 $out = shell_exec(
     'cd .. && ' .
-        'HOME=~/ ' .
-        'php ./public/composer.phar install -o 2>&1'
+        'php artisan migrate --force 2>&1'
 );
 ?>
 
