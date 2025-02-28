@@ -1,0 +1,27 @@
+name: Upload vendor.zip manually
+on:
+  workflow_dispatch:
+
+jobs:
+  web-deploy:
+    name: Upload vendor.zip
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' # Sesuaikan versi PHP yang Anda gunakan
+        
+      - name: Check for composer.json and run composer install if needed
+        run: |
+          composer install --no-interaction --prefer-dist --optimize-autoloader;
+
+      - name: Create vendor.zip
+        run: zip -r vendor.zip vendor
+        
+      - name: Upload vendor.zip via FTP
+        run: |
+          curl -T vendor.zip -u ${{ secrets.FTP_USER }}:${{ secrets.FTP_PASS }} ftp://${{ secrets.FTP_SERVER }}/
