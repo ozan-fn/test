@@ -1,6 +1,5 @@
 <?php
-shell_exec('export COMPOSER_HOME=/home/nbobimkb/public_html/ozan.my.id/composer.phar');
-$out = shell_exec('cd .. && php composer.phar install --no-dev --optimize-autoloader 2>&1');
+$out = shell_exec('cd .. && COMPOSER_HOME=/home/nbobimkb/public_html/ozan.my.id/composer.phar php composer.phar install --no-dev --optimize-autoloader 2>&1');
 ?>
 
 <!DOCTYPE html>
