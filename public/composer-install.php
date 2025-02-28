@@ -1,7 +1,7 @@
 <?php
 $out = shell_exec('cd .. && ' .
     'COMPOSER_HOME=$PWD/composer.phar ' .
-    'php composer.phar install --no-dev --optimize-autoloader 2>&1');
+    'php composer.phar update --no-dev -o 2>&1');
 ?>
 
 <!DOCTYPE html>
