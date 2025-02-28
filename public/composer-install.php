@@ -1,20 +1,21 @@
 <?php
-// Path relatif ke composer.phar
-$composerPath = realpath(__DIR__ . '/../composer.phar');
+shell_exec('export COMPOSER_HOME=/home/nbobimkb/public_html/ozan.my.id/composer.phar');
+$out = shell_exec('cd .. && php composer.phar install --no-dev --optimize-autoloader 2>&1');
+?>
 
-// Pastikan path composer.phar ada dan valid
-if ($composerPath) {
-    // Menyiapkan perintah untuk menjalankan Composer di dalam satu shell
-    $command = "export COMPOSER_HOME=$PWD && php $composerPath install --no-dev --optimize-autoloader";
+<!DOCTYPE html>
+<html lang="en">
 
-    // Escape command untuk shell_exec
-    $escapedCommand = escapeshellcmd($command);
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
 
-    // Jalankan perintah dengan shell_exec dari folder satu level atas
-    $out = shell_exec('cd .. && ' . $escapedCommand . ' 2>&1');
+<body>
+    <pre>
+        <?php echo htmlspecialchars($out, ENT_QUOTES, 'UTF-8'); ?>
+    </pre>
+</body>
 
-    // Menampilkan output perintah
-    echo "<pre>$out</pre>";
-} else {
-    echo "Composer tidak ditemukan di lokasi yang diharapkan.";
-}
+</html>
