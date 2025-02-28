@@ -31,6 +31,6 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}          
           exclude: |
-            .git/
-            vendor/
+            **/.git/**
+            **/vendor/**
           
