@@ -13,6 +13,7 @@ $commands = [
     'php artisan migrate --force', // Jalankan migrate tanpa konfirmasi
     'php artisan storage:link',
     'php artisan optimize', // Optimize autoloader
+    'rm -r ./composer_home'
 ];
 
 $output = [];
