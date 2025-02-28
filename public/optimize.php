@@ -1,5 +1,7 @@
 <?php
-$out = shell_exec('cd .. && php artisan optimize 2>&1');
+$command = 'php artisan optimize';
+$escapedCommand = escapeshellcmd($command);
+$out = shell_exec('cd .. && ' . $escapedCommand . ' 2>&1');
 ?>
 
 <!DOCTYPE html>
@@ -13,7 +15,7 @@ $out = shell_exec('cd .. && php artisan optimize 2>&1');
 
 <body>
     <pre>
-        <?php echo $out; ?>
+        <?php echo htmlspecialchars($out, ENT_QUOTES, 'UTF-8'); ?>
     </pre>
 </body>
 
