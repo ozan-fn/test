@@ -1,18 +1,18 @@
 name: Deploy on Push
 on:
-  push:
-    branches:
-      - master
+    push:
+        branches:
+            - master
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to cPanel
-        run: |
-          curl --location 'https://ozan.my.id:2083/cpsess2480608317/execute/VersionControl/update' \
-            --header 'Authorization: cpanel nbobimkb:0WD9H38C8GR41F66Q9U5AN48NZEI9YBA' \
-            --header 'Content-Type: application/json' \
-            --data '{
-              "repository_root": "/home/nbobimkb/public_html/ozan.my.id",
-              "branch": "master"
-            }'
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy to cPanel
+              run: |
+                  curl --location 'https://ozan.my.id:2083/cpsess2480608317/execute/VersionControl/update' \
+                    --header 'Authorization: cpanel ${{ secrets.CPANEL_USER }}:${{ secrets.CPANEL_API_KEY }}' \
+                    --header 'Content-Type: application/json' \
+                    --data '{
+                        "repository_root": "/home/nbobimkb/public_html/ozan.my.id",
+                        "branch": "master"
+                    }'
