@@ -1,0 +1,14 @@
+name: Deploy on Push
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to cPanel
+        run: |
+          curl --location --request POST 'https://ozan.my.id:2083/cpsess2480608317/execute/VersionControl/update' \
+          --header 'Authorization: cpanel username:${{ secrets.CPANEL_API_KEY }}' \
+          --header 'Content-Type: application/json'
