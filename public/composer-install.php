@@ -1,7 +1,7 @@
 <?php
 $out = shell_exec(
-    'COMPOSER_HOME=$PWD/composer.phar ' .
-        'cd .. && ' .
+    'cd .. && ' .
+        'HOME=$PWD ' .
         'php ./public/composer.phar install --no-dev -o 2>&1'
 );
 ?>
