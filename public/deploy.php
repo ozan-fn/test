@@ -1,5 +1,5 @@
 <?php
-echo shell_exec('echo $(/usr/local/bin/php -v)');
+echo shell_exec('echo $(/usr/local/bin/ea-php84 -v)');
 return;
 
 // Kunci rahasia untuk keamanan
