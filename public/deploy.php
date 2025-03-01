@@ -1,6 +1,4 @@
 <?php
-echo shell_exec('eval echo "~"');
-return;
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
 
@@ -10,7 +8,7 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
 }
 
 $commands = [
-    'COMPOSER_HOME="~/" php ./public/composer.phar install --no-dev --optimize-autoloader',
+    'HOME=$(eval echo "~") php ./public/composer.phar install --no-dev --optimize-autoloader',
     'php artisan migrate --force',
     'php artisan storage:link',
     'php artisan optimize',
