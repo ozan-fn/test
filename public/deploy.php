@@ -1,4 +1,6 @@
 <?php
+
+return;
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
 $username = trim(shell_exec('whoami'));
@@ -9,11 +11,10 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
 }
 
 $commands = [
-    "COMPOSER_HOME=./composer_home php ./public/composer.phar install --no-dev --optimize-autoloader --no-cache",
+    "COMPOSER_HOME=./home/$username/.trash php ./public/composer.phar install --no-dev --optimize-autoloader",
     'php artisan migrate --force', // Jalankan migrate tanpa konfirmasi
     'php artisan storage:link',
     'php artisan optimize', // Optimize autoloader
-    'rm -r ./composer_home'
 ];
 
 $output = [];
