@@ -1,6 +1,6 @@
 <?php
-// echo shell_exec('echo $(echo ~)');
-// return;
+echo shell_exec('echo $PATH');
+return;
 
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
