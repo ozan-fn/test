@@ -1,5 +1,5 @@
 <?php
-echo shell_exec('$(echo "haaaa")');
+echo shell_exec('$(echo haaa) 2>&1');
 return;
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
