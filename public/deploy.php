@@ -12,7 +12,7 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
 
 $commands = [
     'HOME=$(echo ~) php ./public/composer.phar install --no-dev --optimize-autoloader',
-    'php artisan migrate --force',
+    // 'php artisan migrate --force',
     'php artisan storage:link',
     'php artisan optimize',
 ];
