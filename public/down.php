@@ -1,2 +1,2 @@
 <?php
-echo shell_exec('cd .. && php artisan down');
+echo shell_exec('php ../artisan up');
