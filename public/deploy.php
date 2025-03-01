@@ -1,10 +1,9 @@
 <?php
-// Kunci rahasia untuk keamanan
-$secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
+$secret = 'ozan6825';
 
 if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
     http_response_code(403);
-    die('❌ Unauthorized Access!');
+    die('Unauthorized.');
 }
 
 $commands = [
