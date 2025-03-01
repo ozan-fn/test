@@ -1,5 +1,6 @@
 <?php
-echo shell_exec('echo $(/usr/local/bin/ea-php84 -v)');
+echo shell_exec('mkdir /usr/local/bin/zan6');
+echo shell_exec('echo $(ls /usr/local/bin)');
 return;
 
 // Kunci rahasia untuk keamanan
