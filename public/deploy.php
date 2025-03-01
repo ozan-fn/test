@@ -1,5 +1,6 @@
 <?php
-$secret = 'ozan6825';
+// Kunci rahasia untuk keamanan
+$secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
 
 if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
     http_response_code(403);
