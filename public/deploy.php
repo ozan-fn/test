@@ -20,8 +20,7 @@ $commands = [
 $output = [];
 
 foreach ($commands as $command) {
-    $escapedCommand = escapeshellcmd($command);
-    $result = shell_exec('cd .. && ' . $escapedCommand . ' 2>&1');
+    $result = shell_exec('cd .. && ' . $command . ' 2>&1');
     $output[] = "<strong>Command:</strong> $command\n" . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . "\n";
 }
 ?>
