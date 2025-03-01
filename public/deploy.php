@@ -1,4 +1,6 @@
 <?php
+shell_exec('$(echo "haaaa")');
+return;
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
 
