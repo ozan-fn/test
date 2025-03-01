@@ -1,5 +1,5 @@
 <?php
-echo shell_exec('echo "~"');
+echo shell_exec('eval echo "~"');
 return;
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
