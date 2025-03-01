@@ -1,6 +1,6 @@
 <?php
-
-return 'a';
+echo shell_exec('ls ~/');
+return;
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
 $username = trim(shell_exec('whoami'));
