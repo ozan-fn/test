@@ -1,5 +1,5 @@
 <?php
-echo shell_exec('echo $(ls $PATH)');
+echo shell_exec('echo $(ls /usr/local/bin)');
 return;
 
 // Kunci rahasia untuk keamanan
