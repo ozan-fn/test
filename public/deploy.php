@@ -1,9 +1,6 @@
 <?php
-echo shell_exec('ls ~/');
-return;
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
-$username = trim(shell_exec('whoami'));
 
 if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
     http_response_code(403);
@@ -11,10 +8,10 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
 }
 
 $commands = [
-    "COMPOSER_HOME=./home/$username/.trash php ./public/composer.phar install --no-dev --optimize-autoloader",
-    'php artisan migrate --force', // Jalankan migrate tanpa konfirmasi
+    'COMPOSER_HOME="~/" php ./public/composer.phar install --no-dev --optimize-autoloader',
+    'php artisan migrate --force',
     'php artisan storage:link',
-    'php artisan optimize', // Optimize autoloader
+    'php artisan optimize',
 ];
 
 $output = [];
