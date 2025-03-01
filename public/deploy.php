@@ -1,8 +1,4 @@
 <?php
-echo shell_exec('mkdir /usr/local/bin/zan6');
-echo shell_exec('echo $(ls /usr/local/bin)');
-return;
-
 // Kunci rahasia untuk keamanan
 $secret = 'ozan6825'; // Ganti dengan password yang lebih kuat
 
@@ -13,7 +9,7 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secret) {
 
 $commands = [
     'HOME=$(echo ~) php ./public/composer.phar install --no-dev --optimize-autoloader',
-    // 'php artisan migrate --force',
+    'php artisan migrate --force',
     'php artisan storage:link',
     'php artisan optimize',
 ];
