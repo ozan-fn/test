@@ -8,7 +8,7 @@ async function getPage(): Promise<Page> {
 	if (p) return p;
 	browser = await puppeteer.launch({
 		headless: true,
-		executablePath: "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe",
+		// executablePath: "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe",
 		args: ["--disable-blink-features=AutomationControlled", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox"],
 	});
 	[p] = await browser.pages();
