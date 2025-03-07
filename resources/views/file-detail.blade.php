@@ -22,7 +22,7 @@
                             <h5>{{ $file->name }}</h5>
                             <p class="text-muted">
                                 Diupload pada: {{ $file->created_at->format('d M Y H:i') }} <br>
-                                Ukuran: {{ $file->formatSize() }} <br>
+                                Ukurans: {{ $file->formatSize() }} <br>
                                 Jenis: {{ $file->mime_type }}
                             </p>
                         </div>
