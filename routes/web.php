@@ -12,3 +12,4 @@ Route::post('/upload', [FileUploadController::class, 'store'])->name('upload.sto
 Route::get('/upload/{id}', [FileUploadController::class, 'show'])->name('upload.show');
 Route::get('/upload/{id}/download', [FileUploadController::class, 'download'])->name('upload.download');
 Route::delete('/upload/{id}', [FileUploadController::class, 'destroy'])->name('upload.destroy');
+//
