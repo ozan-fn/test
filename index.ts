@@ -23,7 +23,7 @@ const activeProcesses: { [username: string]: boolean } = {};
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, "./client/dist")));
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
     const { username, password } = req.body;
@@ -82,6 +82,10 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
         activeProcesses[username] = false;
         res.status(500).json({ status: "error", message: "Terjadi kesalahan server" });
     }
+});
+
+app.get("*", (req, res) => {
+    return res.sendFile(path.join(__dirname, "./client/dist/index.html"));
 });
 
 app.listen(port, () => {
