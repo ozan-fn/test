@@ -205,6 +205,7 @@ async function presensi(user: string, pass: string) {
                     username: user,
                 });
             } catch (error) {
+                if (!(error instanceof Error)) return;
                 // Cek apakah proses ini masih aktif
                 if (!activeProcesses[user]) return;
 
@@ -240,6 +241,7 @@ async function presensi(user: string, pass: string) {
         // Tandai proses ini sebagai selesai
         activeProcesses[user] = false;
     } catch (error) {
+        if (!(error instanceof Error)) return;
         // Cek apakah proses ini masih aktif
         if (activeProcesses[user]) {
             pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
@@ -324,7 +326,7 @@ async function validasi(cookie: string, idMakul: string, username: string) {
         return { status: "no_data", message: "Tidak ada data presensi yang perlu divalidasi" };
     }
 
-    const results: any = [];
+    const results: { [key: string]: string }[] = [];
     for (const v of ids) {
         // Cek apakah proses ini masih aktif
         if (!activeProcesses[username]) return { status: "cancelled", message: "Proses dibatalkan" };
@@ -364,7 +366,7 @@ async function clickValidasi(cookie: string, id: string, teori: string, praktek:
     const id_presensi_mhs = response.data.id_presensi_mhs;
     const id_presensi_dosen = response.data.id_presensi_dosen;
 
-    const form = {};
+    const form: { [key: string]: string } = {};
 
     form["jenispilih"] = jenisKuliah;
     form["idpresensimhstexs"] = id_presensi_mhs;
