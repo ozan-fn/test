@@ -5,6 +5,7 @@ import Pusher from "pusher";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
+// Pusher configuration
 const pusher = new Pusher({
     appId: "1959139",
     key: "af98277e22dd8b41a76e",
@@ -13,17 +14,20 @@ const pusher = new Pusher({
     useTLS: true,
 });
 
+// Express app setup
 const app = express();
 const port = process.env.PORT || 3000;
 const tahunAkademik = "2024/2025";
 const semester = "2";
-let id: string;
 
+// Track active jobs
 const jobs: { [username: string]: boolean } = {};
 
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "./client/dist")));
 
+// API endpoint for presensi
 app.post("/api/presensi", async (req: Request, res: Response) => {
     let { username, password }: { username: string; password: string } = req.body;
 
@@ -72,20 +76,23 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
     }
 });
 
+// Serve React app for all other routes
 app.get("*", (req, res) => {
     return res.sendFile(path.join(__dirname, "./client/dist/index.html"));
 });
 
+// Start server
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
 });
 
+// Main presensi function
 async function presensi(user: string, pass: string) {
-    try {
-        id = uuidv4();
+    let sessionId = uuidv4();
 
-        await pusher.trigger(user, "presensi-status", {
-            id,
+    try {
+        await sendStatusUpdate(user, {
+            id: sessionId,
             status: "loading",
             message: "Sedang login ke sistem...",
         });
@@ -97,16 +104,16 @@ async function presensi(user: string, pass: string) {
             },
         });
 
-        await pusher.trigger(user, "presensi-status", {
-            id,
+        await sendStatusUpdate(user, {
+            id: sessionId,
             status: "success",
             message: "Sedang login ke sistem...",
         });
 
-        await new Promise(r => setTimeout(r, 200));
+        await delay(200);
 
         if (response.data && String(response.data)?.includes("PERIKSA KEMBALI NAMA PENGGUNA DAN PASSWORD ANDA")) {
-            await pusher.trigger(user, "presensi-status", {
+            await sendStatusUpdate(user, {
                 status: "error",
                 message: "Login gagal! Periksa kembali username dan password Anda.",
             });
@@ -117,7 +124,7 @@ async function presensi(user: string, pass: string) {
         const cookie = response.headers["set-cookie"]?.find(f => f.includes("ci_session="))?.match(/(^ci_session=.+?);/)?.[1];
 
         if (!cookie) {
-            await pusher.trigger(user, "presensi-status", {
+            await sendStatusUpdate(user, {
                 status: "error",
                 message: "Tidak dapat memperoleh cookie sesi",
             });
@@ -125,23 +132,23 @@ async function presensi(user: string, pass: string) {
             return;
         }
 
-        id = uuidv4();
-        await pusher.trigger(user, "presensi-status", {
-            id,
+        sessionId = uuidv4();
+        await sendStatusUpdate(user, {
+            id: sessionId,
             status: "progress",
             message: "Login berhasil! Mengambil daftar mata kuliah...",
         });
 
         const unValidated = await getUnvalidatedCourses(cookie);
 
-        await pusher.trigger(user, "presensi-status", {
-            id,
+        await sendStatusUpdate(user, {
+            id: sessionId,
             status: "success",
             message: "Login berhasil! Mengambil daftar mata kuliah...",
         });
 
         if (unValidated.length === 0) {
-            await pusher.trigger(user, "presensi-status", {
+            await sendStatusUpdate(user, {
                 status: "done",
                 message: "Tidak ada mata kuliah yang perlu divalidasi.",
             });
@@ -149,18 +156,18 @@ async function presensi(user: string, pass: string) {
             return;
         }
 
-        await pusher.trigger(user, "presensi-status", {
+        await sendStatusUpdate(user, {
             status: "success",
             message: `Ditemukan ${unValidated.length} mata kuliah yang perlu divalidasi`,
             courses: unValidated,
         });
 
-        id = uuidv4();
+        sessionId = uuidv4();
         for (let i = 0; i < unValidated.length; i++) {
             const course = unValidated[i];
 
-            await pusher.trigger(user, "presensi-status", {
-                id,
+            await sendStatusUpdate(user, {
+                id: sessionId,
                 status: "progress",
                 message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
                 currentCourse: course,
@@ -170,7 +177,7 @@ async function presensi(user: string, pass: string) {
             try {
                 await validasi(cookie, course.id, user);
 
-                await pusher.trigger(user, "presensi-status", {
+                await sendStatusUpdate(user, {
                     status: "success",
                     message: `Berhasil validasi mata kuliah: ${course.makul}`,
                     completedCourse: course,
@@ -178,7 +185,7 @@ async function presensi(user: string, pass: string) {
             } catch (error) {
                 if (!(error instanceof Error)) return;
 
-                await pusher.trigger(user, "presensi-status", {
+                await sendStatusUpdate(user, {
                     status: "warning",
                     message: `Gagal validasi mata kuliah: ${course.makul}`,
                     failedCourse: course,
@@ -186,11 +193,11 @@ async function presensi(user: string, pass: string) {
                 });
             }
 
-            await new Promise(resolve => setTimeout(resolve, 900));
+            await delay(900);
 
             if (i == unValidated.length - 1) {
-                await pusher.trigger(user, "presensi-status", {
-                    id,
+                await sendStatusUpdate(user, {
+                    id: sessionId,
                     status: "success",
                     message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
                     currentCourse: course,
@@ -199,7 +206,7 @@ async function presensi(user: string, pass: string) {
             }
         }
 
-        await pusher.trigger(user, "presensi-status", {
+        await sendStatusUpdate(user, {
             status: "success",
             message: `Selesai memproses ${unValidated.length} mata kuliah`,
             completedCourses: unValidated,
@@ -210,7 +217,7 @@ async function presensi(user: string, pass: string) {
         if (!(error instanceof Error)) return;
 
         if (jobs[user]) {
-            await pusher.trigger(user, "presensi-status", {
+            await sendStatusUpdate(user, {
                 status: "error",
                 message: `Terjadi kesalahan: ${error.message}`,
             });
@@ -220,6 +227,7 @@ async function presensi(user: string, pass: string) {
     }
 }
 
+// Helper function to get unvalidated courses
 async function getUnvalidatedCourses(cookie: string) {
     const [resp1, resp2] = await Promise.all([
         axios.post(
@@ -259,7 +267,16 @@ async function getUnvalidatedCourses(cookie: string) {
     return result;
 }
 
+// Function to handle validation for each course
 async function validasi(cookie: string, idMakul: string, username: string) {
+    const sessionId = uuidv4();
+
+    await sendDetailUpdate(username, {
+        id: sessionId,
+        status: "progress",
+        message: `Mengambil data presensi...`,
+    });
+
     const response = await axios.post(
         "https://student.amikompurwokerto.ac.id/pembelajaran/getabsenmhs",
         new URLSearchParams({
@@ -287,32 +304,60 @@ async function validasi(cookie: string, idMakul: string, username: string) {
     });
 
     if (ids.length === 0) {
+        await sendDetailUpdate(username, {
+            id: sessionId,
+            status: "warning",
+            message: "Tidak ada data presensi yang perlu divalidasi",
+        });
         return { status: "no_data", message: "Tidak ada data presensi yang perlu divalidasi" };
     }
 
+    await sendDetailUpdate(username, {
+        id: sessionId,
+        status: "success",
+        message: `Ditemukan ${ids.length} presensi yang perlu divalidasi`,
+    });
+
     const results: { [key: string]: string }[] = [];
     for (const v of ids) {
-        id = uuidv4();
+        const itemId = uuidv4();
 
-        await pusher.trigger(username, "presensi-detail", {
-            id,
-            status: "processing",
+        await sendDetailUpdate(username, {
+            id: itemId,
+            status: "progress",
             message: `Memproses validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
         });
 
-        const result = await clickValidasi(cookie, v.id, v.teori, v.praktek, v.jenisKuliah);
-        results.push(result);
+        try {
+            const result = await clickValidasi(cookie, v.id, v.teori, v.praktek, v.jenisKuliah);
+            results.push(result);
 
-        await pusher.trigger(username, "presensi-detail", {
-            id,
-            status: "done",
-            message: `Selesai validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
-        });
+            await sendDetailUpdate(username, {
+                id: itemId,
+                status: "success",
+                message: `Selesai validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                await sendDetailUpdate(username, {
+                    id: itemId,
+                    status: "error",
+                    message: `Gagal validasi presensi: ${v.namaMakul} (${v.jenisKuliah}) - ${error.message}`,
+                });
+            }
+        }
     }
+
+    await sendDetailUpdate(username, {
+        id: sessionId,
+        status: "done",
+        message: `Selesai validasi ${ids.length} presensi`,
+    });
 
     return { status: "success", message: "Berhasil validasi semua presensi", results };
 }
 
+// Function to handle the validation click action
 async function clickValidasi(cookie: string, id: string, teori: string, praktek: string, jenisKuliah: string) {
     const response = await axios("https://student.amikompurwokerto.ac.id/pembelajaran/ajax_editpresensi/" + id, {
         headers: {
@@ -340,7 +385,6 @@ async function clickValidasi(cookie: string, id: string, teori: string, praktek:
         let i = -1;
         for (let v of response.data.asdoss) {
             i++;
-            // v.nama untuk nama
             form["asdos_npms[]"] = v.npm;
             form[`asdospenilaian_${i}_1`] = "1";
             form[`asdospenilaian_${i}_2`] = "5";
@@ -357,4 +401,30 @@ async function clickValidasi(cookie: string, id: string, teori: string, praktek:
     });
 
     return resp2.data;
+}
+
+// Helper functions
+async function sendStatusUpdate(username: string, data: any) {
+    try {
+        await pusher.trigger(username, "presensi-status", data);
+    } catch (error) {
+        console.error("Error sending status update:", error);
+    }
+}
+
+async function sendDetailUpdate(username: string, data: any) {
+    try {
+        await pusher.trigger(username, "presensi-detail", data);
+
+        // Duplicate important updates to presensi-status to ensure client receives them
+        if (data.status === "error" || data.status === "warning" || data.status === "success") {
+            await pusher.trigger(username, "presensi-status", data);
+        }
+    } catch (error) {
+        console.error("Error sending detail update:", error);
+    }
+}
+
+function delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
