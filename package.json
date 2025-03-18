@@ -1,6 +1,8 @@
 {
     "scripts": {
-        "start": "node index.js"
+        "start": "node dist/index.js",
+        "build": "tsc",
+        "dev": "bun --watch src/index.ts"
     },
     "dependencies": {
         "@types/express": "^5.0.0",
@@ -9,6 +11,7 @@
         "express": "^4.21.2",
         "form-data": "^4.0.2",
         "pusher": "^5.2.0",
+        "socket.io": "^4.8.1",
         "uuid": "^11.1.0"
     },
     "devDependencies": {
