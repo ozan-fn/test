@@ -3,7 +3,7 @@ import Button from "./components/Button";
 import Input from "./components/Input";
 import Label from "./components/Label";
 import axios from "axios";
-import { IconBugFilled, IconInfoCircleFilled, IconLoader2, IconCheck, IconAlertTriangle,  } from "@tabler/icons-solidjs";
+import { IconBugFilled, IconInfoCircleFilled, IconLoader2, IconCheck, IconAlertTriangle } from "@tabler/icons-solidjs";
 import { io, Socket } from "socket.io-client";
 
 interface Message {
@@ -22,6 +22,7 @@ function App() {
 	const [lastNIM, setLastNIM] = createSignal(localStorage.getItem("lastNIM") || "");
 
 	let socket: Socket;
+	let logContainer: HTMLDivElement | undefined;
 
 	onMount(() => {
 		socket = io(process.env.NODE_ENV == "development" ? "http://localhost:3000" : undefined);
@@ -67,6 +68,10 @@ function App() {
 		}
 	});
 
+	createEffect(() => {
+		logContainer?.scrollTo(0, logContainer.scrollHeight);
+	});
+
 	const handleSubmit = async () => {
 		if (!user() || !pass()) return;
 
@@ -109,13 +114,13 @@ function App() {
 		<div class="font-aabeeze bg-gradient-to-br from-zinc-900 to-80% to-zinc-700 text-zinc-100 flex flex-col">
 			<div class="flex flex-col h-screen overflow-auto p-8">
 				<h3 class="text-2xl font-semibold">Automatic Presensi Amikom University</h3>
-                <p class="text-xs mt-1">Powered by: TypeScript, Express.js, Solid.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker</p>
-                
+				<p class="text-xs mt-1">Powered by: TypeScript, Express.js, Solid.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker</p>
+
 				<div class="mt-6 flex flex-col gap-4 max-w-md w-full">
-					<Label for="username" >Nomor Induk Mahasiswa</Label>
+					<Label for="username">Nomor Induk Mahasiswa</Label>
 					<Input disabled={!!isLoading()} value={lastNIM()} onChange={(e) => setUser((e.target as HTMLInputElement).value)} id="username" placeholder="NIM" type="text" class="h-10" />
 
-					<Label for="password" >Password</Label>
+					<Label for="password">Password</Label>
 					<Input disabled={!!isLoading()} onChange={(e) => setPass((e.target as HTMLInputElement).value)} id="password" placeholder="Password" type="password" class="h-10" />
 
 					<div class="mt-2">
@@ -125,7 +130,7 @@ function App() {
 					</div>
 				</div>
 
-				<div class="mt-6 bg-zinc-900 overflow-auto border border-zinc-700 rounded-sm flex flex-1 flex-col gap-1">
+				<div ref={logContainer} class="mt-6 bg-zinc-900 overflow-auto border border-zinc-700 rounded-sm flex flex-1 flex-col gap-1">
 					<p class="text-sm font-semibold sticky top-0 bg-zinc-900 p-4">Logs</p>
 					<div class="p-4 pt-0">
 						{msgs().map((v) => (
@@ -155,7 +160,6 @@ function App() {
 					</div>
 				</div>
 			</Show>
-
 		</div>
 	);
 }
