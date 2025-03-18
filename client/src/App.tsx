@@ -112,7 +112,7 @@ function App() {
 
 	return (
 		<div class="font-aabeeze bg-gradient-to-br from-zinc-900 to-80% to-zinc-700 text-zinc-100 flex flex-col">
-			<div class="flex flex-col h-screen overflow-auto p-8">
+			<div class="flex flex-col h-screen overflow-auto p-8 max-w-7xl w-full mx-auto">
 				<h3 class="text-2xl font-semibold">Automatic Presensi Amikom University</h3>
 				<p class="text-xs mt-1">Powered by: TypeScript, Express.js, Solid.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker</p>
 
@@ -123,7 +123,7 @@ function App() {
 					<Label for="password">Password</Label>
 					<Input disabled={!!isLoading()} onChange={(e) => setPass((e.target as HTMLInputElement).value)} id="password" placeholder="Password" type="password" class="h-10" />
 
-					<div class="mt-2">
+					<div class="mt-2 ml-auto">
 						<Button disabled={isLoading()} onClick={handleSubmit}>
 							Mulai Presensi
 						</Button>
