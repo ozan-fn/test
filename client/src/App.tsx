@@ -117,13 +117,17 @@ function App() {
 				<p class="text-xs mt-1">Powered by: TypeScript, Express.js, Solid.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker</p>
 
 				<div class="mt-6 flex flex-col gap-4 max-w-md w-full">
-					<Label for="username">Nomor Induk Mahasiswa</Label>
-					<Input disabled={!!isLoading()} value={lastNIM()} onChange={(e) => setUser((e.target as HTMLInputElement).value)} id="username" placeholder="NIM" type="text" class="h-10" />
+					<div class="flex flex-col gap-2">
+						<Label for="username">Nomor Induk Mahasiswa</Label>
+						<Input disabled={!!isLoading()} value={lastNIM()} onChange={(e) => setUser((e.target as HTMLInputElement).value)} id="username" placeholder="NIM" type="text" class="h-10" />
+					</div>
 
-					<Label for="password">Password</Label>
-					<Input disabled={!!isLoading()} onChange={(e) => setPass((e.target as HTMLInputElement).value)} id="password" placeholder="Password" type="password" class="h-10" />
+					<div class="flex flex-col gap-2">
+						<Label for="password">Password</Label>
+						<Input disabled={!!isLoading()} onChange={(e) => setPass((e.target as HTMLInputElement).value)} id="password" placeholder="Password" type="password" class="h-10" />
+					</div>
 
-					<div class="mt-2 ml-auto">
+					<div class="mt-2">
 						<Button disabled={isLoading()} onClick={handleSubmit}>
 							Mulai Presensi
 						</Button>
