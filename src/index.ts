@@ -17,7 +17,7 @@ const semester = "2";
 const jobs: { [username: string]: boolean } = {};
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../client1/dist")));
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
     let { username, password }: { username: string; password: string } = req.body;
@@ -58,7 +58,7 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
 });
 
 app.get("*", (_req, res) => {
-    return res.sendFile(path.join(__dirname, "../client1/dist/index.html"));
+    return res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
 server.listen(port, () => {
