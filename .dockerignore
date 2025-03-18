@@ -1,4 +1,4 @@
-bun.lockb
+bun.lock
 node_modules
 client/*
 !client/dist
