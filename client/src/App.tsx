@@ -127,7 +127,7 @@ function App() {
 						<Input disabled={!!isLoading()} onChange={(e) => setPass((e.target as HTMLInputElement).value)} id="password" placeholder="Password" type="password" class="h-10" />
 					</div>
 
-					<div class="mt-2">
+					<div class="mt-2 ml-auto">
 						<Button disabled={isLoading()} onClick={handleSubmit}>
 							Mulai Presensi
 						</Button>
