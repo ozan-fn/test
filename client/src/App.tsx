@@ -109,8 +109,8 @@ function App() {
 		<div class="font-aabeeze bg-gradient-to-br from-zinc-900 to-80% to-zinc-700 text-zinc-100 flex flex-col">
 			<div class="flex flex-col h-screen overflow-auto p-8">
 				<h3 class="text-2xl font-semibold">Automatic Presensi Amikom University</h3>
-                <p class="text-xs mt-1">Powered by: TypeScript, Express.js, Solid.js, Socket.IO, TailwindCSS, Axios, Cheerio</p>
-
+                <p class="text-xs mt-1">Powered by: TypeScript, Express.js, Solid.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker</p>
+                
 				<div class="mt-6 flex flex-col gap-4 max-w-md w-full">
 					<Label for="username" >Nomor Induk Mahasiswa</Label>
 					<Input disabled={!!isLoading()} value={lastNIM()} onChange={(e) => setUser((e.target as HTMLInputElement).value)} id="username" placeholder="NIM" type="text" class="h-10" />
