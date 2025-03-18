@@ -5,43 +5,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Pusher from "pusher-js";
+import { Progress } from "./components/ui/progress";
+import { motion } from "motion/react";
+import { CheckIcon } from "lucide-react";
+
+interface Message {
+    id?: string;
+    message: string;
+    status: "info" | "loading" | "progress" | "success" | "error" | "warning" | "done";
+}
+
+const pusher = new Pusher("af98277e22dd8b41a76e", {
+    cluster: "ap1",
+});
 
 export default function App() {
     const [nim, setNim] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
-    const [messages, setMessages] = useState<
-        Array<{
-            message: string;
-            status: "loading" | "progress" | "success" | "error" | "warning";
-            timestamp: number;
-        }>
-    >([]);
-    const [progress, setProgress] = useState<{
-        current: number;
-        total: number;
-    } | null>(null);
-    const [courses, setCourses] = useState<
-        Array<{
-            id: string;
-            makul: string;
-            count: number;
-        }>
-    >([]);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+    const [courses, setCourses] = useState<{ id: string; makul: string; count: number }[]>([]);
     const [completedCourses, setCompletedCourses] = useState<string[]>([]);
 
-    const pusherRef = useRef<Pusher | null>(null);
     const channelRef = useRef<any>(null);
 
     useEffect(() => {
         return () => {
-            // Cleanup function to unsubscribe and disconnect when component unmounts
             if (channelRef.current) {
                 channelRef.current.unbind_all();
                 channelRef.current.unsubscribe();
-            }
-            if (pusherRef.current) {
-                pusherRef.current.disconnect();
             }
         };
     }, []);
@@ -50,85 +43,53 @@ export default function App() {
         e.preventDefault();
         if (!nim || !password) return;
 
-        // Reset state
         setLoading(true);
         setMessages([]);
         setProgress(null);
         setCourses([]);
         setCompletedCourses([]);
 
-        // Unsubscribe from previous channel if exists
-        if (channelRef.current) {
-            channelRef.current.unbind_all();
-            channelRef.current.unsubscribe();
-        }
+        pusher.unbind_all();
 
-        // Create new Pusher instance
-        if (pusherRef.current) {
-            pusherRef.current.disconnect();
-        }
-        pusherRef.current = new Pusher("af98277e22dd8b41a76e", {
-            cluster: "ap1",
-        });
+        const channelName = `${nim.toUpperCase()}`;
+        pusher.subscribe(channelName);
 
-        // Subscribe to username-specific channel
-        const channelName = `presensi-channel-${nim}`;
-        channelRef.current = pusherRef.current.subscribe(channelName);
+        pusher.bind("presensi-status", (data: any) => {
+            //
+            if (data.id) {
+                setMessages(prevMessages => {
+                    const index = prevMessages.findIndex(msg => msg.id == data.id);
 
-        // Listen for status updates
-        channelRef.current.bind("presensi-status", (data: any) => {
-            console.log("Received status update:", data);
+                    if (index !== -1) {
+                        const updatedMessages = [...prevMessages];
+                        updatedMessages[index] = { ...prevMessages[index], message: data.message, status: data.status };
+                        return updatedMessages;
+                    }
 
-            // Only process messages for this user
-            if (data.username === nim) {
-                // Add message to list
-                setMessages(prev => [
-                    ...prev,
-                    {
-                        message: data.message,
-                        status: data.status,
-                        timestamp: Date.now(),
-                    },
-                ]);
+                    return [...prevMessages, { id: data.id, message: data.message, status: data.status }];
+                });
+            } else {
+                setMessages(prevMessages => [...prevMessages, { message: data.message, status: data.status }]);
+            }
 
-                // Update progress if available
-                if (data.progress) {
-                    setProgress(data.progress);
-                }
+            if (data.progress) {
+                setProgress(data.progress);
+            }
 
-                // Update courses if available
-                if (data.courses) {
-                    setCourses(data.courses);
-                }
+            if (data.courses) {
+                setCourses(data.courses);
+            }
 
-                // Add completed course if available
-                if (data.completedCourse) {
-                    setCompletedCourses(prev => [...prev, data.completedCourse.makul]);
-                }
+            if (data.completedCourse) {
+                setCompletedCourses(prev => [...prev, data.completedCourse.makul]);
+            }
 
-                // End loading state if process is complete or failed
-                if (data.status === "success" || data.status === "error") {
-                    setLoading(false);
-                }
+            if (data.status === "done" || data.status === "error") {
+                setLoading(false);
             }
         });
 
-        // Listen for detail updates
-        channelRef.current.bind("presensi-detail", (data: any) => {
-            console.log("Received detail update:", data);
-            // Add detail message to list
-            setMessages(prev => [
-                ...prev,
-                {
-                    message: data.message,
-                    status: data.status === "completed" ? "success" : "progress",
-                    timestamp: Date.now(),
-                },
-            ]);
-        });
-
         try {
-            // Send request to server
             const response = await fetch("/api/presensi", {
                 method: "POST",
                 headers: {
@@ -145,7 +106,6 @@ export default function App() {
                     {
                         message: result.message || "Terjadi kesalahan pada server",
                         status: "error",
-                        timestamp: Date.now(),
                     },
                 ]);
                 setLoading(false);
@@ -156,7 +116,6 @@ export default function App() {
                 {
                     message: "Tidak dapat terhubung ke server",
                     status: "error",
-                    timestamp: Date.now(),
                 },
             ]);
             setLoading(false);
@@ -185,18 +144,16 @@ export default function App() {
                 </form>
 
                 {loading && (
-                    <div className="mt-8 flex items-center gap-2">
+                    <div className="mt-8 flex flex-row items-center gap-2">
                         <LoadingSpinner />
-                        <span>Sedang memproses...</span>
+                        <span className="text-xs">Sedang memproses...</span>
                     </div>
                 )}
 
                 {progress && (
                     <div className="mt-4">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                            <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${(progress.current / progress.total) * 100}%` }}></div>
-                        </div>
-                        <p className="text-sm mt-1 text-gray-500">
+                        <Progress value={(progress.current / progress.total) * 100} />
+                        <p className="mt-1 text-gray-500">
                             {progress.current} dari {progress.total} mata kuliah
                         </p>
                     </div>
@@ -207,20 +164,28 @@ export default function App() {
                         <h3 className="text-lg font-medium">Status Proses:</h3>
                         <div className="mt-2 space-y-2">
                             {messages.map((msg, index) => (
-                                <div
-                                    key={index}
-                                    className={`p-3 rounded-md ${
-                                        msg.status === "error"
-                                            ? "bg-red-100 text-red-800"
-                                            : msg.status === "warning"
-                                            ? "bg-yellow-100 text-yellow-800"
-                                            : msg.status === "success"
-                                            ? "bg-green-100 text-green-800"
-                                            : "bg-blue-100 text-blue-800"
-                                    }`}
+                                <motion.div
+                                    key={index} //
+                                    animate={{ opacity: [0, 1], y: [-12, 0] }}
+                                    className="flex flex-row items-center gap-2"
                                 >
-                                    {msg.message}
-                                </div>
+                                    {msg.status == "progress" ? <LoadingSpinner /> : <CheckIcon />}
+                                    <p
+                                        className={`p-3 rounded-md ${
+                                            msg.status === "error"
+                                                ? " text-red-400"
+                                                : msg.status === "warning"
+                                                ? " text-yellow-400"
+                                                : msg.status === "success"
+                                                ? "" //
+                                                : msg.status === "done"
+                                                ? " text-black"
+                                                : " text-blue-400"
+                                        }`}
+                                    >
+                                        {msg.message}
+                                    </p>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
