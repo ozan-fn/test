@@ -1,15 +1,11 @@
-import { Component } from "solid-js";
+import { Component, JSX } from "solid-js";
 
-interface LabelProps {
-    class?: string;
-    htmlFor: string;
-    children: string;
-}
+interface LabelProps extends JSX.LabelHTMLAttributes<HTMLLabelElement> {}
 
-const Label: Component<LabelProps> = ({ class: className = "", htmlFor, children }) => (
-    <label for={htmlFor} class={`text-sm font-bold ${className}`}>
-        {children}
-    </label>
+const Label: Component<LabelProps> = (props) => (
+	<label {...props} class={`text-sm font-bold ${props.class || ""}`}>
+		{props.children}
+	</label>
 );
 
 export default Label;

@@ -1,17 +1,17 @@
 import { Component, JSX } from "solid-js";
 
-interface ButtonProps {
-    type?: "button" | "submit" | "reset";
-    class?: string;
-    onClick?: () => void;
-    disabled?: boolean;
-    children: string | JSX.Element;
-}
+interface ButtonProps extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {}
 
-const Button: Component<ButtonProps> = ({ type = "button", class: className = "", onClick, disabled = false, children }) => (
-    <button type={type} class={`px-4 py-2 bg-zinc-100 text-zinc-900 rounded-sm shadow hover:bg-zinc-700 outline-none ${disabled ? "opacity-70 cursor-not-allowed" : ""} ${className}`} onClick={onClick} disabled={disabled}>
-        {children}
-    </button>
-);
+const Button: Component<ButtonProps> = (props) => {
+    return (
+        <button
+            {...props}
+            class={`px-4 py-2 bg-zinc-100 text-zinc-900 rounded-sm shadow hover:bg-zinc-700 outline-none 
+                ${props.disabled ? "opacity-90 cursor-not-allowed" : ""} ${props.class || ""}`}
+        >
+            {props.children}
+        </button>
+    );
+};
 
 export default Button;
