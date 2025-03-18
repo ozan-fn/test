@@ -50,6 +50,8 @@ const express_1 = __importDefault(require("express"));
 const axios_1 = __importDefault(require("axios"));
 const pusher_1 = __importDefault(require("pusher"));
 const path_1 = __importDefault(require("path"));
+const uuid_1 = require("uuid");
+// Pusher configuration
 const pusher = new pusher_1.default({
     appId: "1959139",
     key: "af98277e22dd8b41a76e",
@@ -57,225 +59,189 @@ const pusher = new pusher_1.default({
     cluster: "ap1",
     useTLS: true,
 });
+// Express app setup
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 const tahunAkademik = "2024/2025";
 const semester = "2";
-// Penyimpanan proses yang sedang berjalan
-const activeProcesses = {};
+// Track active jobs
+const jobs = {};
+// Middleware
 app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.static(path_1.default.join(__dirname, "./client/dist")));
+// API endpoint for presensi
 app.post("/api/presensi", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
     if (!username || !password) {
-        res.status(400).json({ status: "error", message: "Username dan password diperlukan" });
+        res.status(400).json({ error: "Username dan password diperlukan" });
         return;
     }
-    // Cek apakah proses dengan username ini sedang berjalan
-    if (activeProcesses[username]) {
-        // Hentikan proses sebelumnya dengan memberi tahu client
-        pusher.trigger(`presensi-channel-${username}`, "presensi-status", {
+    username = username.toUpperCase();
+    if (jobs[username]) {
+        yield pusher.trigger(username, "presensi-status", {
             status: "warning",
-            message: "Proses sebelumnya dihentikan karena ada permintaan baru",
+            message: "Melanjutkan proses sebelumnya",
             username: username,
         });
-        // Tandai proses sebelumnya sebagai tidak aktif
-        activeProcesses[username] = false;
+        res.status(200).json({ message: "Melanjutkan proses sebelumnya" });
+        return;
     }
-    // Tandai proses ini sebagai aktif
-    activeProcesses[username] = true;
-    // Trigger pesan loading ke channel khusus username
-    pusher.trigger(`presensi-channel-${username}`, "presensi-status", {
-        status: "loading",
+    jobs[username] = true;
+    yield pusher.trigger(username, "presensi-status", {
+        status: "success",
         message: "Memulai proses presensi...",
-        username: username,
     });
     try {
-        // Lakukan presensi secara asinkron
-        presensi(username, password).catch(error => {
+        presensi(username, password).catch((error) => __awaiter(void 0, void 0, void 0, function* () {
             console.error("Error dalam presensi:", error);
-            // Cek apakah proses ini masih aktif sebelum mengirim pesan error
-            if (activeProcesses[username]) {
-                pusher.trigger(`presensi-channel-${username}`, "presensi-status", {
+            if (jobs[username]) {
+                yield pusher.trigger(username, "presensi-status", {
                     status: "error",
                     message: "Terjadi kesalahan dalam proses presensi",
-                    error: error.message,
-                    username: username,
                 });
-                // Tandai proses ini sebagai tidak aktif
-                activeProcesses[username] = false;
+                delete jobs[username];
             }
-        });
-        // Kembalikan respons segera
+        }));
         res.json({ status: "processing", message: "Proses presensi sedang berjalan" });
     }
     catch (error) {
-        // Tandai proses ini sebagai tidak aktif jika terjadi error
-        activeProcesses[username] = false;
+        delete jobs[username];
         res.status(500).json({ status: "error", message: "Terjadi kesalahan server" });
     }
 }));
+// Serve React app for all other routes
 app.get("*", (req, res) => {
     return res.sendFile(path_1.default.join(__dirname, "./client/dist/index.html"));
 });
+// Start server
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
 });
+// Main presensi function
 function presensi(user, pass) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c, _d;
+        let sessionId = (0, uuid_1.v4)();
         try {
-            // Kirim pesan loading login
-            pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+            yield sendStatusUpdate(user, {
+                id: sessionId,
                 status: "loading",
                 message: "Sedang login ke sistem...",
-                username: user,
             });
-            // Cek apakah proses ini masih aktif
-            if (!activeProcesses[user])
-                return;
             const data = `pengguna=${user}&passw=${pass}`;
             const response = yield axios_1.default.post("https://student.amikompurwokerto.ac.id/auth/toenter", data, {
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
             });
-            // Cek apakah login berhasil
+            yield sendStatusUpdate(user, {
+                id: sessionId,
+                status: "success",
+                message: "Sedang login ke sistem...",
+            });
+            yield delay(200);
             if (response.data && ((_a = String(response.data)) === null || _a === void 0 ? void 0 : _a.includes("PERIKSA KEMBALI NAMA PENGGUNA DAN PASSWORD ANDA"))) {
-                pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+                yield sendStatusUpdate(user, {
                     status: "error",
                     message: "Login gagal! Periksa kembali username dan password Anda.",
-                    username: user,
                 });
-                activeProcesses[user] = false;
+                delete jobs[user];
                 return;
             }
             const cookie = (_d = (_c = (_b = response.headers["set-cookie"]) === null || _b === void 0 ? void 0 : _b.find(f => f.includes("ci_session="))) === null || _c === void 0 ? void 0 : _c.match(/(^ci_session=.+?);/)) === null || _d === void 0 ? void 0 : _d[1];
             if (!cookie) {
-                pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+                yield sendStatusUpdate(user, {
                     status: "error",
                     message: "Tidak dapat memperoleh cookie sesi",
-                    username: user,
                 });
-                activeProcesses[user] = false;
+                delete jobs[user];
                 return;
             }
-            // Cek apakah proses ini masih aktif
-            if (!activeProcesses[user])
-                return;
-            // Kirim pesan berhasil login
-            pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+            sessionId = (0, uuid_1.v4)();
+            yield sendStatusUpdate(user, {
+                id: sessionId,
                 status: "progress",
                 message: "Login berhasil! Mengambil daftar mata kuliah...",
-                username: user,
             });
-            // Ambil matakuliah yang belum divalidasi
             const unValidated = yield getUnvalidatedCourses(cookie);
-            // Cek apakah proses ini masih aktif
-            if (!activeProcesses[user])
-                return;
+            yield sendStatusUpdate(user, {
+                id: sessionId,
+                status: "success",
+                message: "Login berhasil! Mengambil daftar mata kuliah...",
+            });
             if (unValidated.length === 0) {
-                pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
-                    status: "success",
+                yield sendStatusUpdate(user, {
+                    status: "done",
                     message: "Tidak ada mata kuliah yang perlu divalidasi.",
-                    username: user,
                 });
-                activeProcesses[user] = false;
+                delete jobs[user];
                 return;
             }
-            // Kirim pesan jumlah mata kuliah yang perlu divalidasi
-            pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
-                status: "progress",
+            yield sendStatusUpdate(user, {
+                status: "success",
                 message: `Ditemukan ${unValidated.length} mata kuliah yang perlu divalidasi`,
                 courses: unValidated,
-                username: user,
             });
-            // Proses validasi satu per satu
+            sessionId = (0, uuid_1.v4)();
             for (let i = 0; i < unValidated.length; i++) {
-                // Cek apakah proses ini masih aktif
-                if (!activeProcesses[user])
-                    return;
                 const course = unValidated[i];
-                // Kirim pesan sedang memproses mata kuliah
-                pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+                yield sendStatusUpdate(user, {
+                    id: sessionId,
                     status: "progress",
                     message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
                     currentCourse: course,
-                    progress: {
-                        current: i + 1,
-                        total: unValidated.length,
-                    },
-                    username: user,
+                    progress: { current: i + 1, total: unValidated.length },
                 });
                 try {
                     yield validasi(cookie, course.id, user);
-                    // Cek apakah proses ini masih aktif
-                    if (!activeProcesses[user])
-                        return;
-                    // Kirim pesan berhasil validasi mata kuliah
-                    pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
-                        status: "progress",
+                    yield sendStatusUpdate(user, {
+                        status: "success",
                         message: `Berhasil validasi mata kuliah: ${course.makul}`,
                         completedCourse: course,
-                        progress: {
-                            current: i + 1,
-                            total: unValidated.length,
-                        },
-                        username: user,
                     });
                 }
                 catch (error) {
                     if (!(error instanceof Error))
                         return;
-                    // Cek apakah proses ini masih aktif
-                    if (!activeProcesses[user])
-                        return;
-                    // Kirim pesan gagal validasi mata kuliah
-                    pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+                    yield sendStatusUpdate(user, {
                         status: "warning",
                         message: `Gagal validasi mata kuliah: ${course.makul}`,
                         failedCourse: course,
                         error: error.message,
-                        progress: {
-                            current: i + 1,
-                            total: unValidated.length,
-                        },
-                        username: user,
                     });
                 }
-                // Tambahkan delay untuk menghindari rate limiting
-                yield new Promise(resolve => setTimeout(resolve, 1000));
+                yield delay(900);
+                if (i == unValidated.length - 1) {
+                    yield sendStatusUpdate(user, {
+                        id: sessionId,
+                        status: "success",
+                        message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
+                        currentCourse: course,
+                        progress: { current: i + 1, total: unValidated.length },
+                    });
+                }
             }
-            // Cek apakah proses ini masih aktif
-            if (!activeProcesses[user])
-                return;
-            // Kirim pesan selesai semua
-            pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+            yield sendStatusUpdate(user, {
                 status: "success",
                 message: `Selesai memproses ${unValidated.length} mata kuliah`,
                 completedCourses: unValidated,
-                username: user,
             });
-            // Tandai proses ini sebagai selesai
-            activeProcesses[user] = false;
+            delete jobs[user];
         }
         catch (error) {
             if (!(error instanceof Error))
                 return;
-            // Cek apakah proses ini masih aktif
-            if (activeProcesses[user]) {
-                pusher.trigger(`presensi-channel-${user}`, "presensi-status", {
+            if (jobs[user]) {
+                yield sendStatusUpdate(user, {
                     status: "error",
                     message: `Terjadi kesalahan: ${error.message}`,
-                    username: user,
                 });
-                // Tandai proses ini sebagai tidak aktif
-                activeProcesses[user] = false;
+                delete jobs[user];
             }
         }
     });
 }
+// Helper function to get unvalidated courses
 function getUnvalidatedCourses(cookie) {
     return __awaiter(this, void 0, void 0, function* () {
         const [resp1, resp2] = yield Promise.all([
@@ -312,8 +278,15 @@ function getUnvalidatedCourses(cookie) {
         return result;
     });
 }
+// Function to handle validation for each course
 function validasi(cookie, idMakul, username) {
     return __awaiter(this, void 0, void 0, function* () {
+        const sessionId = (0, uuid_1.v4)();
+        yield sendDetailUpdate(username, {
+            id: sessionId,
+            status: "progress",
+            message: `Mengambil data presensi...`,
+        });
         const response = yield axios_1.default.post("https://student.amikompurwokerto.ac.id/pembelajaran/getabsenmhs", new URLSearchParams({
             thn_akademik: tahunAkademik,
             semester,
@@ -336,34 +309,54 @@ function validasi(cookie, idMakul, username) {
             ids.push({ id, namaMakul, teori, praktek, jenisKuliah });
         });
         if (ids.length === 0) {
+            yield sendDetailUpdate(username, {
+                id: sessionId,
+                status: "warning",
+                message: "Tidak ada data presensi yang perlu divalidasi",
+            });
             return { status: "no_data", message: "Tidak ada data presensi yang perlu divalidasi" };
         }
+        yield sendDetailUpdate(username, {
+            id: sessionId,
+            status: "success",
+            message: `Ditemukan ${ids.length} presensi yang perlu divalidasi`,
+        });
         const results = [];
         for (const v of ids) {
-            // Cek apakah proses ini masih aktif
-            if (!activeProcesses[username])
-                return { status: "cancelled", message: "Proses dibatalkan" };
-            // Kirim pesan memproses validasi presensi
-            pusher.trigger(`presensi-channel-${username}`, "presensi-detail", {
-                status: "processing",
+            const itemId = (0, uuid_1.v4)();
+            yield sendDetailUpdate(username, {
+                id: itemId,
+                status: "progress",
                 message: `Memproses validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
-                username: username,
             });
-            const result = yield clickValidasi(cookie, v.id, v.teori, v.praktek, v.jenisKuliah);
-            results.push(result);
-            // Cek apakah proses ini masih aktif
-            if (!activeProcesses[username])
-                return { status: "cancelled", message: "Proses dibatalkan" };
-            // Kirim pesan selesai validasi presensi
-            pusher.trigger(`presensi-channel-${username}`, "presensi-detail", {
-                status: "completed",
-                message: `Selesai validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
-                username: username,
-            });
+            try {
+                const result = yield clickValidasi(cookie, v.id, v.teori, v.praktek, v.jenisKuliah);
+                results.push(result);
+                yield sendDetailUpdate(username, {
+                    id: itemId,
+                    status: "success",
+                    message: `Selesai validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
+                });
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    yield sendDetailUpdate(username, {
+                        id: itemId,
+                        status: "error",
+                        message: `Gagal validasi presensi: ${v.namaMakul} (${v.jenisKuliah}) - ${error.message}`,
+                    });
+                }
+            }
         }
+        yield sendDetailUpdate(username, {
+            id: sessionId,
+            status: "done",
+            message: `Selesai validasi ${ids.length} presensi`,
+        });
         return { status: "success", message: "Berhasil validasi semua presensi", results };
     });
 }
+// Function to handle the validation click action
 function clickValidasi(cookie, id, teori, praktek, jenisKuliah) {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield (0, axios_1.default)("https://student.amikompurwokerto.ac.id/pembelajaran/ajax_editpresensi/" + id, {
@@ -388,7 +381,6 @@ function clickValidasi(cookie, id, teori, praktek, jenisKuliah) {
             let i = -1;
             for (let v of response.data.asdoss) {
                 i++;
-                // v.nama untuk nama
                 form["asdos_npms[]"] = v.npm;
                 form[`asdospenilaian_${i}_1`] = "1";
                 form[`asdospenilaian_${i}_2`] = "5";
@@ -404,4 +396,32 @@ function clickValidasi(cookie, id, teori, praktek, jenisKuliah) {
         });
         return resp2.data;
     });
+}
+// Helper functions
+function sendStatusUpdate(username, data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield pusher.trigger(username, "presensi-status", data);
+        }
+        catch (error) {
+            console.error("Error sending status update:", error);
+        }
+    });
+}
+function sendDetailUpdate(username, data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield pusher.trigger(username, "presensi-detail", data);
+            // Duplicate important updates to presensi-status to ensure client receives them
+            if (data.status === "error" || data.status === "warning" || data.status === "success") {
+                yield pusher.trigger(username, "presensi-status", data);
+            }
+        }
+        catch (error) {
+            console.error("Error sending detail update:", error);
+        }
+    });
+}
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
