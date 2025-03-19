@@ -7,7 +7,6 @@ import { Server, Socket } from "socket.io";
 import http from "http";
 import compression from "compression";
 
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -20,7 +19,7 @@ const jobs: { [username: string]: boolean } = {};
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/dist")));
-app.use(compression())
+app.use(compression());
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
 	let { username, password }: { username: string; password: string } = req.body;
@@ -113,10 +112,16 @@ async function presensi(user: string, pass: string) {
 			message: `Ditemukan ${unValidated.length} mata kuliah yang perlu divalidasi`,
 		});
 
+		id = sendMessage(user, {
+			status: "loading",
+			message: `otw`,
+		});
+
 		for (let i = 0; i < unValidated.length; i++) {
 			const course = unValidated[i];
 
-			id = sendMessage(user, {
+			sendMessage(user, {
+				id,
 				status: "loading",
 				message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
 			});
@@ -206,8 +211,6 @@ async function getUnvalidatedCourses(cookie: string) {
 }
 
 async function validasi(cookie: string, idMakul: string, username: string) {
-	let id: string = "";
-
 	const response = await axios.post(
 		"https://student.amikompurwokerto.ac.id/pembelajaran/getabsenmhs",
 		new URLSearchParams({
@@ -243,8 +246,11 @@ async function validasi(cookie: string, idMakul: string, username: string) {
 	}
 
 	const results: { [key: string]: string }[] = [];
+	let id = sendDetailMessage(username, { status: "loading", message: "" });
+
 	for (const v of ids) {
-		id = sendDetailMessage(username, {
+		sendDetailMessage(username, {
+            id,
 			status: "loading",
 			message: `Memproses validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
 		});
@@ -321,10 +327,10 @@ async function clickValidasi(cookie: string, id: string, teori: string, praktek:
 	return resp2.data;
 }
 
-function sendDetailMessage(username: string, data: Message & { id?: string }) {
-	let id = data.id ?? uuidv4();
-	io.emit(username + "-detail", data);
-	return id;
+function sendDetailMessage(username: string, data: Message & { id?: string }): string {
+	const messageId = data.id ?? uuidv4();
+	io.emit(username + "-detail", { ...data, id: messageId });
+	return messageId;
 }
 
 interface Message {
@@ -333,7 +339,7 @@ interface Message {
 }
 
 function sendMessage(user: string, { id, status, message }: Message & { id?: string }) {
-	id = id ?? uuidv4();
-	io.emit(user, { id, status, message });
-	return id;
+	const idx = id ?? uuidv4();
+	io.emit(user, { id: idx, status, message });
+	return idx;
 }
