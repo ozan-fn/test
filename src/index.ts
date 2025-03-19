@@ -246,6 +246,7 @@ async function validasi(cookie: string, idMakul: string, username: string) {
 	}
 
 	const results: { [key: string]: string }[] = [];
+    sendDetailMessage(username, { status: "success", message: "Memulai proses validasi" });
 	let id = sendDetailMessage(username, { status: "loading", message: "" });
 
 	for (const v of ids) {
