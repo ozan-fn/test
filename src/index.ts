@@ -6,17 +6,20 @@ import { v4 as uuidv4 } from "uuid";
 import { Server, Socket } from "socket.io";
 import http from "http";
 import compression from "compression";
+import { Message } from "./types";
+import cors from "cors";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 const tahunAkademik = "2024/2025";
 const semester = "2";
 
 const jobs: { [username: string]: boolean } = {};
 
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/dist")));
 app.use(compression());
@@ -246,12 +249,12 @@ async function validasi(cookie: string, idMakul: string, username: string) {
 	}
 
 	const results: { [key: string]: string }[] = [];
-    sendDetailMessage(username, { status: "success", message: "Memulai proses validasi" });
+	sendDetailMessage(username, { status: "success", message: "Memulai proses validasi" });
 	let id = sendDetailMessage(username, { status: "loading", message: "" });
 
 	for (const v of ids) {
 		sendDetailMessage(username, {
-            id,
+			id,
 			status: "loading",
 			message: `Memproses validasi presensi: ${v.namaMakul} (${v.jenisKuliah})`,
 		});
@@ -332,11 +335,6 @@ function sendDetailMessage(username: string, data: Message & { id?: string }): s
 	const messageId = data.id ?? uuidv4();
 	io.emit(username + "-detail", { ...data, id: messageId });
 	return messageId;
-}
-
-interface Message {
-	status: "loading" | "success" | "error" | "warning";
-	message: string;
 }
 
 function sendMessage(user: string, { id, status, message }: Message & { id?: string }) {
