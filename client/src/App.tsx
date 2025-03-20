@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { IconAlertTriangle, IconBugFilled, IconCheck, IconLoader2, IconMessageCircle } from '@tabler/icons-react'
+import { IconAlertTriangle, IconBugFilled, IconCheck, IconLoader2, IconX } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import axios from 'axios'
@@ -12,10 +12,8 @@ const App = () => {
 	const [socket, setSocket] = useState<Socket | null>(null)
 	const [isLoading, setIsLoading] = useState(false)
 	const [messages, setMessages] = useState<Message[]>([])
-	const [detailMessages, setDetailMessages] = useState<any[]>([])
 	const [nim, setNim] = useState('')
 	const [password, setPassword] = useState('')
-	const [showDetailMessages, setShowDetailMessages] = useState(false)
 
 	useEffect(() => {
 		setSocket(io(URL))
@@ -28,14 +26,6 @@ const App = () => {
 	useEffect(() => {
 		if (!socket && !nim) return
 		let username = nim.toUpperCase()
-
-		socket?.on(username, () => {
-			console.log('Connected')
-		})
-
-		socket?.on(username + '-detail', () => {
-			console.log('Disconnected')
-		})
 
 		socket?.on(username, (data: Message) => {
 			setMessages((prev) => {
@@ -57,13 +47,8 @@ const App = () => {
 			}
 		})
 
-		socket?.on(username + '-detail', (data: Message) => {
-			setDetailMessages((detailMsgs) => [...detailMsgs.filter((msg) => msg.id !== data.id), data])
-		})
-
 		return function () {
 			socket?.off(username)
-			socket?.off(username + '-detail')
 		}
 	}, [nim])
 
@@ -75,19 +60,15 @@ const App = () => {
 		try {
 			await axios.post(url, { username: nim, password })
 		} catch (error) {
-			console.error('Error submitting form:', error)
-			setIsLoading(false)
+			if (!(error instanceof Error)) return
+			console.error(error.message)
+			setMessages((p) => [...p, { status: 'error', message: error.message }])
 		}
 	}
 
 	function clearMessages() {
 		setMessages([])
-		setDetailMessages([])
 		setIsLoading(false)
-	}
-
-	function toggleDetailMessages() {
-		setShowDetailMessages(!showDetailMessages)
 	}
 
 	return (
@@ -105,20 +86,18 @@ const App = () => {
 			</motion.p>
 
 			<div className="p-[16px]">
-				{/* Form Input Section */}
-				<div className="relative mt-8 flex h-full w-full max-w-lg flex-col gap-2 p-6 shadow-lg">
-					{/* Message Logs */}
+				<div className="relative mt-8 flex h-full w-full max-w-lg flex-col p-4 shadow-lg">
 					{messages.length > 0 && (
-						<motion.div layout className="mb-4 rounded-md border border-zinc-700 bg-zinc-800/50 p-4 shadow-lg" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', bounce: 0.3 }}>
-							<div className="mb-2 flex items-center justify-between">
+						<>
+							<div className="flex items-center justify-between">
 								<h3 className="text-sm font-bold text-purple-400">Log Aktivitas</h3>
 								{messages.length > 0 && (
-									<button onClick={clearMessages} className="rounded-full bg-zinc-700 px-2 py-1 text-xs hover:bg-zinc-600">
-										Clear
+									<button onClick={clearMessages} className="text-xs">
+										<IconX className="h-5 w-5" />
 									</button>
 								)}
 							</div>
-							<div className="max-h-40 overflow-y-auto">
+							<div className="mt-2 max-h-[36vh] overflow-y-auto">
 								{messages.map((m, i) => {
 									let Icon = <IconCheck className="h-5 w-5 text-green-500" />
 
@@ -131,68 +110,42 @@ const App = () => {
 									}
 
 									return (
-										<motion.div key={i} className="flex flex-row items-start gap-2 border-b border-zinc-700/50 py-2 last:border-0" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-											<div className="mt-0.5 shrink-0">{Icon}</div>
+										<motion.div key={i} className="flex flex-row gap-2 border-b border-zinc-700 py-2 last:border-0" animate={{ opacity: [0, 1], y: [10, 0] }} transition={{ delay: i * 0.05 }}>
+											<div className="shrink-0">{Icon}</div>
 											<p className={`text-sm font-medium ${m.status === 'error' ? 'text-red-400' : m.status === 'warning' ? 'text-yellow-400' : m.status === 'success' ? 'text-green-400' : ''}`}>{m.message}</p>
 										</motion.div>
 									)
 								})}
 							</div>
-						</motion.div>
-					)}
-
-					{/* Detail Messages Section */}
-					{detailMessages.length > 0 && (
-						<motion.div layout className="mb-4 rounded-md border border-zinc-700 bg-zinc-800/50 p-4 shadow-lg" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', bounce: 0.3, delay: 0.2 }}>
-							<div className="mb-2 flex cursor-pointer items-center justify-between" onClick={toggleDetailMessages}>
-								<h3 className="flex items-center text-sm font-bold text-purple-400">
-									<IconMessageCircle className="mr-1 h-4 w-4" />
-									Detail Messages
-									<span className="ml-2 rounded-full bg-purple-500 px-2 py-0.5 text-xs">{detailMessages.length}</span>
-								</h3>
-								<div className="text-xs">{showDetailMessages ? '▼' : '▶'}</div>
-							</div>
-
-							{showDetailMessages && (
-								<div className="max-h-60 overflow-y-auto rounded-md border border-zinc-700 bg-zinc-900/80">
-									{detailMessages.map((dm, i) => (
-										<motion.div key={i} className="border-b border-zinc-700/30 p-3 last:border-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}>
-											<div className="flex items-center justify-between">
-												<span className="text-xs font-semibold text-purple-300">ID: {dm.id}</span>
-												<span className={`rounded-full px-2 py-0.5 text-xs ${dm.status === 'error' ? 'bg-red-900/50 text-red-300' : dm.status === 'warning' ? 'bg-yellow-900/50 text-yellow-300' : dm.status === 'success' ? 'bg-green-900/50 text-green-300' : 'bg-blue-900/50 text-blue-300'}`}>{dm.status}</span>
-											</div>
-											<p className="mt-1 text-sm">{dm.message}</p>
-										</motion.div>
-									))}
-								</div>
-							)}
-						</motion.div>
+						</>
 					)}
 
 					{/* Form Content */}
-					{!isLoading && (
-						<motion.div layout className="flex flex-1 flex-col gap-4" initial={{ opacity: 1 }} animate={{ opacity: 1 }}>
-							<motion.div layout animate={{ y: [40, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 0.2 }} className="flex flex-col gap-2">
-								<motion.label animate={{ x: [40, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 0.3 }} htmlFor="nim" className="text-sm">
-									Nomor Induk Mahasiswa
-								</motion.label>
-								<input id="nim" type="text" placeholder="nim" onChange={(e) => setNim(e.target.value)} value={nim} className="h-10 rounded-sm border border-zinc-700 bg-zinc-900 px-3 outline-none transition-colors focus:border-purple-500" />
-							</motion.div>
+					<AnimatePresence>
+						{!isLoading && (
+							<motion.div layout className="flex flex-1 flex-col gap-4">
+								<motion.div layout animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 0.9 }} className="flex flex-col gap-2">
+									<motion.label animate={{ x: [70, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 1.2 }} htmlFor="nim" className="text-sm">
+										Nomor Induk Mahasiswa
+									</motion.label>
+									<input id="nim" type="text" placeholder="nim" onChange={(e) => setNim(e.target.value)} value={nim} className="h-10 rounded-sm border border-zinc-700 bg-zinc-900 px-3 outline-none transition-colors focus:border-purple-500" />
+								</motion.div>
 
-							<motion.div layout animate={{ y: [40, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 0.4 }} className="flex flex-col gap-2">
-								<motion.label animate={{ x: [40, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 0.5 }} htmlFor="password" className="text-sm">
-									Password
-								</motion.label>
-								<input id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password} placeholder="password" className="h-10 rounded-sm border border-zinc-700 bg-zinc-900 px-3 outline-none transition-colors focus:border-purple-500" />
-							</motion.div>
+								<motion.div layout animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 1.3 }} className="flex flex-col gap-2">
+									<motion.label animate={{ x: [70, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 1.6 }} htmlFor="password" className="text-sm">
+										Password
+									</motion.label>
+									<input id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password} placeholder="password" className="h-10 rounded-sm border border-zinc-700 bg-zinc-900 px-3 outline-none transition-colors focus:border-purple-500" />
+								</motion.div>
 
-							<motion.div layout className="flex w-full justify-end" animate={{ y: [40, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 0.6 }}>
-								<button onClick={handleSubmit} disabled={!nim || !password} className="rounded-sm bg-purple-500 px-4 py-2 text-sm text-zinc-100 shadow-lg transition-colors hover:bg-purple-600 disabled:bg-zinc-600 disabled:opacity-50">
-									Mulai Presensi
-								</button>
+								<motion.div layout className="flex w-full justify-end" animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ type: 'spring', delay: 1.9 }}>
+									<button onClick={handleSubmit} disabled={!nim || !password} className="rounded-sm bg-purple-500 px-4 py-2 text-sm text-zinc-100 shadow-lg transition-colors hover:bg-purple-600 disabled:bg-zinc-600 disabled:opacity-50">
+										Mulai Presensi
+									</button>
+								</motion.div>
 							</motion.div>
-						</motion.div>
-					)}
+						)}
+					</AnimatePresence>
 
 					{/* Border decorations */}
 					<motion.div animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.4 : 1.3, duration: 0.7 }} layout layoutId="pp1" className="absolute right-0 top-1/2 h-full w-[1.3px]">
