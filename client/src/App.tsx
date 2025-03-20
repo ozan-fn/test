@@ -72,7 +72,7 @@ const App = () => {
 			socket?.off(username)
 			socket?.off(username + '-detail')
 		}
-	}, [nim])
+	}, [nim, isLoading])
 
 	async function handleSubmit() {
 		let url = process.env.NODE_ENV === 'production' ? '/api/presensi' : 'http://localhost:4000/api/presensi'
