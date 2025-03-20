@@ -49,7 +49,7 @@ const App = () => {
 			})
 
 			if (data.status === 'success' && (data.message.includes('Selesai memproses') || data.message.includes('Tidak ada mata kuliah') || data.message.includes('validasi mata kuliah'))) {
-				setIsLoading(false)
+				setIsLoading(true)
 			}
 
 			if (data.status === 'error') {
@@ -91,7 +91,7 @@ const App = () => {
 	}
 
 	return (
-		<div className="font-poppins mx-auto flex min-h-screen w-full max-w-sm flex-col bg-gradient-to-br from-zinc-900 to-zinc-700 to-70% p-6 text-zinc-100">
+		<div className="mx-auto flex min-h-screen w-full max-w-sm flex-col bg-gradient-to-br from-zinc-900 to-zinc-700 to-70% p-6 font-poppins text-zinc-100">
 			<motion.h1 animate={{ opacity: [0, 1], y: [40, 0] }} transition={{ type: 'spring' }} className="relative mt-8 text-3xl font-bold">
 				AUTOMATIC
 				<IconLoader2 className="absolute right-0 top-0 animate-spin" />
