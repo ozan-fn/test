@@ -1,22 +1,23 @@
 {
-    "scripts": {
-        "start": "node dist/index.js",
-        "build": "tsc",
-        "dev": "bun --watch src/index.ts"
-    },
-    "dependencies": {
-        "axios": "^1.8.3",
-        "cheerio": "^1.0.0",
-        "compression": "^1.8.0",
-        "cors": "^2.8.5",
-        "express": "^4.21.2",
-        "socket.io": "^4.8.1",
-        "uuid": "^11.1.0"
-    },
-    "devDependencies": {
-        "@types/compression": "^1.7.5",
-        "@types/express": "^5.0.0",
-        "@types/node": "^22.13.10",
-        "typescript": "^5.8.2"
-    }
+	"scripts": {
+		"start": "node dist/index.js",
+		"build": "tsc",
+		"dev": "bun --watch src/index.ts",
+		"c:dev": "cd client && bun dev"
+	},
+	"dependencies": {
+		"axios": "^1.8.3",
+		"cheerio": "^1.0.0",
+		"compression": "^1.8.0",
+		"cors": "^2.8.5",
+		"express": "^4.21.2",
+		"socket.io": "^4.8.1",
+		"uuid": "^11.1.0"
+	},
+	"devDependencies": {
+		"@types/compression": "^1.7.5",
+		"@types/express": "^5.0.0",
+		"@types/node": "^22.13.10",
+		"typescript": "^5.8.2"
+	}
 }

@@ -1,0 +1,47 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "check-and-install-bun",
+			"type": "shell",
+			"command": "if ! command -v bun &> /dev/null; then npm i -g bun; else echo 'Bun already installed'; fi",
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		},
+		{
+			"label": "check-and-install-dependencies-root",
+			"type": "shell",
+			"command": "if [ ! -d node_modules ]; then bun install; else echo 'Root node_modules already exists'; fi",
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		},
+		{
+			"label": "check-and-install-dependencies-client",
+			"type": "shell",
+			"command": "if [ ! -d client/node_modules ]; then cd client && bun install; else echo 'Client node_modules already exists'; fi",
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		},
+		{
+			"label": "start-client",
+			"type": "shell",
+			"command": "cd client && bun dev; exit",
+			"dependsOn": ["check-and-install-bun", "check-and-install-dependencies-root", "check-and-install-dependencies-client"],
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		},
+		{
+			"label": "start-server",
+			"type": "shell",
+			"command": "bun dev; exit",
+			"dependsOn": ["check-and-install-bun", "check-and-install-dependencies-root"],
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		}
+	]
+}
