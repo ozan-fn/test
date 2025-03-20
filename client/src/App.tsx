@@ -91,7 +91,7 @@ const App = () => {
 	}
 
 	return (
-		<div className="mx-auto flex min-h-screen w-full max-w-sm flex-col bg-gradient-to-br from-zinc-900 to-zinc-700 to-70% p-6 font-poppins text-zinc-100">
+		<div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gradient-to-br from-zinc-900 to-zinc-700 to-70% p-6 font-poppins text-zinc-100">
 			<motion.h1 animate={{ opacity: [0, 1], y: [40, 0] }} transition={{ type: 'spring' }} className="relative mt-8 text-3xl font-bold">
 				AUTOMATIC
 				<IconLoader2 className="absolute right-0 top-0 animate-spin" />
