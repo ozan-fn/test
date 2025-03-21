@@ -328,13 +328,13 @@ async function clickValidasi(cookie: string, id: string, teori: string, praktek:
 }
 
 function sendDetailMessage(username: string, data: Message & { id?: string }): string {
-	const messageId = data.id ?? uuidv4();
+	const messageId = data.id || uuidv4();
 	io.emit(username + "-detail", { ...data, id: messageId });
 	return messageId;
 }
 
 function sendMessage(user: string, { id, status, message }: Message & { id?: string }) {
-	const idx = id ?? uuidv4();
+	const idx = id || uuidv4();
 	io.emit(user, { id: idx, status, message });
 	return idx;
 }

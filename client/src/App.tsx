@@ -45,14 +45,10 @@ const App = () => {
 
 			if (data.status === 'success' && (data.message.includes('Selesai memproses') || data.message.includes('Tidak ada mata kuliah') || data.message.includes('validasi mata kuliah'))) {
 				setDone(true)
-				socket?.off(username)
-				socket?.off(username + '-detail')
 			}
 
 			if (data.status === 'error') {
 				setDone(true)
-				socket?.off(username)
-				socket?.off(username + '-detail')
 			}
 		})
 
@@ -72,7 +68,7 @@ const App = () => {
 			socket?.off(username)
 			socket?.off(username + '-detail')
 		}
-	}, [nim, isLoading])
+	}, [nim])
 
 	async function handleSubmit() {
 		let url = process.env.NODE_ENV === 'production' ? '/api/presensi' : 'http://localhost:4000/api/presensi'
