@@ -120,7 +120,7 @@ async function presensi(user: string, pass: string) {
 			message: "otw",
 		});
 
-		for (let [i, course] of unValidated.entries()) {
+		for await (let [i, course] of unValidated.entries()) {
 			sendMessage(user, {
 				id: id8,
 				status: "loading",

@@ -35,10 +35,10 @@ const App = () => {
 		socket?.on(username, (data: Message) => {
 			setMessages((prev) => {
 				const msgIndex = prev.findIndex((msg) => msg.id === data.id)
-				if (msgIndex >= 0) {
+				if (msgIndex !== -1) {
 					const updated = [...prev]
 					updated[msgIndex] = { ...prev[msgIndex], ...data }
-					return updated
+					return [...updated]
 				}
 				return [...prev, data]
 			})
@@ -59,10 +59,10 @@ const App = () => {
 		socket?.on(username + '-detail', (data: Message) => {
 			setDetailMessages((prev) => {
 				const msgIndex = prev.findIndex((msg) => msg.id === data.id)
-				if (msgIndex >= 0) {
+				if (msgIndex !== -1) {
 					const updated = [...prev]
 					updated[msgIndex] = { ...prev[msgIndex], ...data }
-					return updated
+					return [...updated]
 				}
 				return [...prev, data]
 			})
