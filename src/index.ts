@@ -115,16 +115,16 @@ async function presensi(user: string, pass: string) {
 			message: `Ditemukan ${unValidated.length} mata kuliah yang perlu divalidasi`,
 		});
 
-		id = sendMessage(user, {
+		let id8 = sendMessage(user, {
 			status: "loading",
-			message: `otw`,
+			message: "",
 		});
 
 		for (let i = 0; i < unValidated.length; i++) {
 			const course = unValidated[i];
 
 			sendMessage(user, {
-				id,
+				id: id8,
 				status: "loading",
 				message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
 			});
@@ -147,7 +147,7 @@ async function presensi(user: string, pass: string) {
 
 			if (i == unValidated.length - 1) {
 				sendMessage(user, {
-					id,
+					id: id8,
 					status: "success",
 					message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
 				});
