@@ -13,7 +13,7 @@ WORKDIR /app
 COPY package.json ./
 RUN bun install
 COPY ./ ./
-COPY --from=base /app/client/dist ./client/dist
+COPY --from=base /app/dist ./client/dist
 RUN bun run build
 ENV NODE_ENV=production
 ENV PORT=4000
