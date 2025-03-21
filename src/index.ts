@@ -117,12 +117,10 @@ async function presensi(user: string, pass: string) {
 
 		let id8 = sendMessage(user, {
 			status: "loading",
-			message: "",
+			message: "otw",
 		});
 
-		for (let i = 0; i < unValidated.length; i++) {
-			const course = unValidated[i];
-
+		for (let [i, course] of unValidated.entries()) {
 			sendMessage(user, {
 				id: id8,
 				status: "loading",
@@ -144,15 +142,13 @@ async function presensi(user: string, pass: string) {
 					message: `- Gagal validasi mata kuliah: ${course.makul}`,
 				});
 			}
-
-			if (i == unValidated.length - 1) {
-				sendMessage(user, {
-					id: id8,
-					status: "success",
-					message: `Memproses mata kuliah (${i + 1}/${unValidated.length}): ${course.makul}`,
-				});
-			}
 		}
+
+		sendMessage(user, {
+			id: id8,
+			status: "success",
+			message: `Proses mata kuliah (${unValidated.length}/${unValidated.length}) selesai`,
+		});
 
 		sendMessage(user, {
 			status: "success",
