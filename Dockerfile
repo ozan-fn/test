@@ -1,4 +1,20 @@
-FROM oven/bun:alpine
+FROM oven/bun:alpine as base 
+
+# #
+
+FROM base
+
+WORKDIR /app
+
+COPY ./client/package.json .
+RUN bun install
+
+COPY ./client /app
+RUN bun run build
+
+# #
+
+FROM base 
 
 WORKDIR /app
 
@@ -6,7 +22,7 @@ COPY package.json .
 RUN bun install
 
 COPY ./ ./
-COPY ./client/dist ./client/dist
+COPY --from=base /app/dist ./client/dist
 
 RUN bun run build
 
