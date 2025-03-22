@@ -62,6 +62,10 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
 	}
 });
 
+app.get("/favicon.ico", (_req, res) => {
+	res.status(204).end(); // Tidak mengirimkan konten untuk favicon
+});
+
 app.get("*", (_req, res) => {
 	return res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
