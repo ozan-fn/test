@@ -3,7 +3,6 @@ FROM oven/bun:alpine AS base
 WORKDIR /app
 COPY ./client/package.json ./
 RUN bun install
-RUN bun pm trust --all
 COPY ./client /app
 RUN bun run build
 
