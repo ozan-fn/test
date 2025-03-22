@@ -27,7 +27,7 @@ app.use(compression());
 app.post("/api/presensi", async (req: Request, res: Response) => {
 	let { username, password, penilaian }: { username: string; password: string; penilaian: { dosen: number; asdos: number } } = req.body;
 
-	if (!username || !password || !Number(penilaian.dosen) || !Number(penilaian.asdos)) {
+	if (!username || !password || isNaN(penilaian.dosen) || isNaN(penilaian.asdos)) {
 		res.sendStatus(400);
 		return;
 	}
