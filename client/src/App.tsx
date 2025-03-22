@@ -90,11 +90,12 @@ const App = () => {
 	function clearMessages() {
 		setDone(false)
 		setMessages([])
+		setDetailMessages([])
 		setIsLoading(false)
 	}
 
 	return (
-		<div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gradient-to-br from-zinc-900 to-zinc-700 to-70% p-6 font-poppins text-zinc-100">
+		<div className="mx-auto flex min-h-screen max-w-md flex-col overflow-auto bg-gradient-to-br from-zinc-900 to-zinc-700 to-70% p-6 font-poppins text-zinc-100">
 			<motion.h1 animate={{ opacity: [0, 1], y: [40, 0] }} transition={{ type: 'spring' }} className="relative mt-8 text-3xl font-bold">
 				AUTOMATIC
 			</motion.h1>
@@ -106,7 +107,8 @@ const App = () => {
 				Powered by: TypeScript, Express.js, React.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker, Rsbuild. Framer Motion
 			</motion.p>
 
-			<div className="flex p-[16px]">
+			{/* Menambahkan container dengan overflow-visible untuk elemen absolute */}
+			<div className="flex overflow-hidden p-[16px]">
 				<div className="relative mt-8 flex w-full flex-col p-4">
 					{messages.length > 0 && (
 						<>
@@ -208,27 +210,29 @@ const App = () => {
 						)}
 					</AnimatePresence>
 
-					<motion.div animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.4 : 1.3, duration: 0.7 }} layout layoutId="pp1" className="absolute right-0 top-1/2 h-full w-[1.3px]">
+					{/* Memastikan bahwa semua elemen dengan posisi absolute terlihat dengan menambahkan z-index dan membuat parent sebagai relative */}
+					<motion.div animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.4 : 1.3, duration: 0.7 }} layout layoutId="pp1" className="absolute right-0 top-1/2 z-10 h-full w-[1.3px]">
 						<motion.div className="-translate-y-1/2 bg-purple-400" initial={{ height: '0px' }} animate={{ height: 'calc(100% + 32px)' }} />
 					</motion.div>
 
-					<motion.div animate={{ y: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.3 : 1.6, duration: 0.7 }} layout layoutId="pp2" className="absolute left-0 top-1/2 h-full w-[1.3px]">
+					<motion.div animate={{ y: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.3 : 1.6, duration: 0.7 }} layout layoutId="pp2" className="absolute left-0 top-1/2 z-10 h-full w-[1.3px]">
 						<motion.div className="-translate-y-1/2 bg-purple-400" initial={{ height: '0px' }} animate={{ height: 'calc(100% + 32px)' }} />
 					</motion.div>
 
-					<motion.div animate={{ x: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.2 : 1.9, duration: 0.7 }} layout layoutId="pp3" className="absolute left-1/2 top-0 h-[1.3px] w-full">
+					<motion.div animate={{ x: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.2 : 1.9, duration: 0.7 }} layout layoutId="pp3" className="absolute left-1/2 top-0 z-10 h-[1.3px] w-full">
 						<motion.div className="h-[1.3px] -translate-x-1/2 bg-purple-400" initial={{ width: '0px' }} animate={{ width: 'calc(100% + 32px)' }} />
 					</motion.div>
 
-					<motion.div animate={{ x: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.1 : 2.1, duration: 0.7 }} layout layoutId="pp4" className="absolute bottom-0 left-1/2 h-[1.3px] w-full">
+					<motion.div animate={{ x: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.1 : 2.1, duration: 0.7 }} layout layoutId="pp4" className="absolute bottom-0 left-1/2 z-10 h-[1.3px] w-full">
 						<motion.div className="h-[1.3px] -translate-x-1/2 bg-purple-400" initial={{ width: '0px' }} animate={{ width: 'calc(100% + 32px)' }} />
 					</motion.div>
 				</div>
 			</div>
 
 			{detailMessages.length > 0 && (
-				<div className="flex flex-1 p-[16px]">
-					<div className="relative mt-8 flex w-full flex-col p-4">
+				<div className="flex flex-1 overflow-hidden p-[16px]">
+					{/* Menambahkan pointer-events-auto untuk memastikan elemen dapat berinteraksi */}
+					<div className="pointer-events-auto relative mt-8 flex w-full flex-col overflow-visible p-4">
 						<>
 							<div className="flex items-center justify-between">
 								<h3 className="text-sm font-bold text-purple-400">Detail Message</h3>
@@ -255,19 +259,20 @@ const App = () => {
 							</div>
 						</>
 
-						<motion.div animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.4 : 1.3, duration: 0.7 }} layout layoutId="pp5" className="absolute right-0 top-1/2 h-full w-[1.3px]">
+						{/* Menambahkan z-index pada elemen absolute untuk memastikan visibilitas */}
+						<motion.div animate={{ y: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.4 : 1.3, duration: 0.7 }} layout layoutId="pp5" className="absolute right-0 top-1/2 z-10 h-full w-[1.3px]">
 							<motion.div className="-translate-y-1/2 bg-purple-400" initial={{ height: '0px' }} animate={{ height: 'calc(100% + 32px)' }} />
 						</motion.div>
 
-						<motion.div animate={{ y: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.3 : 1.6, duration: 0.7 }} layout layoutId="pp6" className="absolute left-0 top-1/2 h-full w-[1.3px]">
+						<motion.div animate={{ y: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.3 : 1.6, duration: 0.7 }} layout layoutId="pp6" className="absolute left-0 top-1/2 z-10 h-full w-[1.3px]">
 							<motion.div className="-translate-y-1/2 bg-purple-400" initial={{ height: '0px' }} animate={{ height: 'calc(100% + 32px)' }} />
 						</motion.div>
 
-						<motion.div animate={{ x: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.2 : 1.9, duration: 0.7 }} layout layoutId="pp7" className="absolute left-1/2 top-0 h-[1.3px] w-full">
+						<motion.div animate={{ x: [-70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.2 : 1.9, duration: 0.7 }} layout layoutId="pp7" className="absolute left-1/2 top-0 z-10 h-[1.3px] w-full">
 							<motion.div className="h-[1.3px] -translate-x-1/2 bg-purple-400" initial={{ width: '0px' }} animate={{ width: 'calc(100% + 32px)' }} />
 						</motion.div>
 
-						<motion.div animate={{ x: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.1 : 2.1, duration: 0.7 }} layout layoutId="pp8" className="absolute bottom-0 left-1/2 h-[1.3px] w-full">
+						<motion.div animate={{ x: [70, 0], opacity: [0, 1] }} transition={{ delay: isLoading ? 0.1 : 2.1, duration: 0.7 }} layout layoutId="pp8" className="absolute bottom-0 left-1/2 z-10 h-[1.3px] w-full">
 							<motion.div className="h-[1.3px] -translate-x-1/2 bg-purple-400" initial={{ width: '0px' }} animate={{ width: 'calc(100% + 32px)' }} />
 						</motion.div>
 					</div>
