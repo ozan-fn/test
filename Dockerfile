@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./client/package.json ./
 RUN npm install
 COPY ./client /app
-RUN bun run build
+RUN npm run build
 
 # deploy
 FROM oven/bun:alpine
