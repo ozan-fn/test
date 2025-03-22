@@ -7,7 +7,7 @@ import { Message } from "./types";
 
 const URL = process.env.NODE_ENV === "production" ? undefined : "http://localhost:4000";
 
-export const App = () => {
+export default function App() {
 	//
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
@@ -280,4 +280,4 @@ export const App = () => {
 			)}
 		</div>
 	);
-};
+}
