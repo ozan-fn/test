@@ -1,8 +1,8 @@
 # base
-FROM oven/bun:alpine AS base
+FROM node:22 AS base
 WORKDIR /app
 COPY ./client/package.json ./
-RUN bun install
+RUN npm install
 COPY ./client /app
 RUN bun run build
 

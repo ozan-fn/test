@@ -6,22 +6,32 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tabler/icons-preact": "^3.31.0",
+    "@tabler/icons-react": "^3.31.0",
     "axios": "^1.8.4",
     "framer-motion": "^12.5.0",
-    "preact": "^10.26.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.10.1",
+    "@eslint/js": "^9.21.0",
     "@types/node": "^22.13.11",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react-swc": "^3.8.0",
     "autoprefixer": "^10.4.21",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
     "postcss": "^8.5.3",
     "tailwindcss": "3",
     "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0"
   }
 }

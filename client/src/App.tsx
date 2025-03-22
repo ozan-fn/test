@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { IconAlertTriangle, IconBugFilled, IconCheck, IconLoader2, IconX } from "@tabler/icons-preact";
-import { useEffect, useState } from "preact/compat";
+import { IconAlertTriangle, IconBugFilled, IconCheck, IconLoader2, IconX } from "@tabler/icons-react";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { Message } from "./types";
+import { useEffect, useState } from "react";
 
 const URL = process.env.NODE_ENV === "production" ? undefined : "http://localhost:4000";
 
