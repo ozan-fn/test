@@ -3,7 +3,7 @@ import { IconAlertTriangle, IconBugFilled, IconCheck, IconLoader2, IconX } from 
 import { useEffect, useState } from "preact/compat";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
-import { Message } from "../../src/types";
+import { Message } from "./types";
 
 const URL = process.env.NODE_ENV === "production" ? undefined : "http://localhost:4000";
 

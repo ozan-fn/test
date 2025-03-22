@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Server, Socket } from "socket.io";
 import http from "http";
 import compression from "compression";
-import { Message } from "./types";
+import { Message } from "../client/src/types/index";
 import cors from "cors";
 
 const app = express();
