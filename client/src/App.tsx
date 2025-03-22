@@ -16,6 +16,8 @@ const App = () => {
 	const [password, setPassword] = useState('')
 	const [done, setDone] = useState(false)
 	const [detailMessages, setDetailMessages] = useState<Message[]>([])
+	const [pAsdos, setPAsdos] = useState<number>(0)
+	const [pDosen, setPDosen] = useState<number>(0)
 
 	useEffect(() => {
 		setSocket(io(URL))
@@ -77,7 +79,7 @@ const App = () => {
 		localStorage.setItem('nim', nim)
 
 		try {
-			await axios.post(url, { username: nim, password })
+			await axios.post(url, { username: nim, password, penilaian: { dosen: pDosen, asdos: pAsdos } })
 		} catch (error) {
 			if (!(error instanceof Error)) return
 			console.error(error.message)
@@ -95,7 +97,6 @@ const App = () => {
 		<div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-gradient-to-br from-zinc-900 to-zinc-700 to-70% p-6 font-poppins text-zinc-100">
 			<motion.h1 animate={{ opacity: [0, 1], y: [40, 0] }} transition={{ type: 'spring' }} className="relative mt-8 text-3xl font-bold">
 				AUTOMATIC
-				<IconLoader2 className="absolute right-0 top-0 animate-spin" />
 			</motion.h1>
 			<motion.h3 animate={{ opacity: [0, 1], x: [-40, 0] }} transition={{ type: 'spring', delay: 0.3 }} className="text-3xl font-medium text-purple-400">
 				PRESENSI
@@ -144,24 +145,65 @@ const App = () => {
 						{!isLoading && (
 							<motion.div layout animate={{ height: isLoading ? 0 : 'auto' }} exit={{ height: 0, transition: { delay: 1.6, duration: 2.1, type: 'spring' } }} className="flex flex-col gap-4">
 								<motion.div layout animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -40], opacity: [1, 0], transition: { delay: 0.6 }, height: 0 }} transition={{ type: 'spring', delay: 0.9 }} className="flex flex-col gap-2">
-									<motion.label animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -40], opacity: [1, 0], transition: { delay: 0.3 }, height: 0 }} transition={{ type: 'spring', delay: 1.2 }} htmlFor="nim" className="text-sm">
+									<motion.label animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -40], opacity: [1, 0], transition: { delay: 0.3 }, height: 0 }} transition={{ type: 'spring', delay: 1.1 }} htmlFor="nim" className="text-sm">
 										Nomor Induk Mahasiswa
 									</motion.label>
 									<input id="nim" type="text" placeholder="nim" onChange={(e) => setNim(e.target.value)} value={nim} className="h-10 rounded-sm border border-zinc-700 bg-zinc-900 px-3 outline-none transition-colors focus:border-purple-500" />
 								</motion.div>
 
-								<motion.div layout animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 1.1 }, height: 0 }} transition={{ type: 'spring', delay: 1.6 }} className="flex flex-col gap-2">
-									<motion.label animate={{ x: [70, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 0.9 }, height: 0 }} transition={{ type: 'spring', delay: 1.3 }} htmlFor="password" className="text-sm">
+								<motion.div layout animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 1.1 }, height: 0 }} transition={{ type: 'spring', delay: 1.3 }} className="flex flex-col gap-2">
+									<motion.label animate={{ x: [70, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 0.9 }, height: 0 }} transition={{ type: 'spring', delay: 1.6 }} htmlFor="password" className="text-sm">
 										Password
 									</motion.label>
 									<input id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password} placeholder="password" className="h-10 rounded-sm border border-zinc-700 bg-zinc-900 px-3 outline-none transition-colors focus:border-purple-500" />
 								</motion.div>
 
-								<motion.div layout className="flex w-full justify-end" animate={{ y: [70, 0], opacity: [0, 1] }} exit={{ y: [0, -70], opacity: [1, 0], transition: { delay: 1.3 }, height: 0 }} transition={{ type: 'spring', delay: 1.9 }}>
-									<button onClick={() => setIsLoading(true)} disabled={!nim || !password} className="rounded-sm bg-purple-500 px-4 py-2 text-sm text-zinc-100 shadow-lg transition-colors hover:bg-purple-600 disabled:bg-zinc-600 disabled:opacity-50">
-										Mulai Presensi
-									</button>
+								{/* Penilaian Dosen */}
+								<motion.div layout animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 1.6 }, height: 0 }} transition={{ type: 'spring', delay: 1.9 }} className="flex flex-col gap-2">
+									<motion.label animate={{ x: [70, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 1.3 }, height: 0 }} transition={{ type: 'spring', delay: 2.1 }} htmlFor="password" className="text-sm">
+										Rating Dosen
+									</motion.label>
+									<div className="grid grid-cols-4 gap-2">
+										{['S Baik', 'Baik', 'C Baik', 'K Baik'].map((v, i) => {
+											return (
+												<div onClick={() => setPDosen(i)} key={i} className="relative flex cursor-pointer items-center justify-center rounded-sm border border-purple-400 py-2 text-center text-sm">
+													{i === pDosen && <motion.div layoutId="ps8us" transition={{ duration: 0.9, type: 'spring' }} className="absolute h-full w-full bg-purple-400" />}
+													<motion.p key={pDosen} className="shdow-lg relative rounded-sm text-white">
+														{v}
+													</motion.p>
+												</div>
+											)
+										})}
+									</div>{' '}
 								</motion.div>
+
+								{/* Penilaian ke Asdos */}
+								<motion.div layout animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 2.1 }, height: 0 }} transition={{ type: 'spring', delay: 2.3 }} className="flex flex-col gap-2">
+									<motion.label animate={{ x: [70, 0], opacity: [0, 1] }} exit={{ x: [0, -70], opacity: [1, 0], transition: { delay: 1.9 }, height: 0 }} transition={{ type: 'spring', delay: 2.6 }} htmlFor="password" className="text-sm">
+										Rating Asdos
+									</motion.label>
+									<div className="grid grid-cols-4 gap-2">
+										{['S Baik', 'Baik', 'Cukup', 'Kurang'].map((v, i) => {
+											return (
+												<div onClick={() => setPAsdos(i)} key={i} className="relative flex cursor-pointer items-center justify-center rounded-sm border border-purple-400 py-2 text-center text-sm">
+													{i === pAsdos && <motion.div layoutId="ps8u" transition={{ duration: 0.9, type: 'spring' }} className="absolute h-full w-full bg-purple-400" />}
+													<motion.p key={pAsdos} className="shdow-lg relative rounded-sm text-white">
+														{v}
+													</motion.p>
+												</div>
+											)
+										})}
+									</div>
+								</motion.div>
+
+								<div className="flex flex-row">
+									<motion.div animate={{ width: ['0%', '100%'] }} transition={{ delay: 2.1, type: 'spring', duration: 3.9 }} />
+									<motion.div className="shrink-0" animate={{ y: [70, 0], opacity: [0, 1] }} exit={{ y: [0, -70], opacity: [1, 0], transition: { delay: 1.3 }, height: 0 }} transition={{ type: 'spring', delay: 1.9 }}>
+										<button onClick={() => setIsLoading(true)} disabled={!nim || !password} className="rounded-sm bg-purple-500 px-4 py-2 text-sm text-zinc-100 shadow-lg transition-colors hover:bg-purple-600 disabled:bg-zinc-600 disabled:opacity-50">
+											Mulai Presensi
+										</button>
+									</motion.div>
+								</div>
 							</motion.div>
 						)}
 					</AnimatePresence>

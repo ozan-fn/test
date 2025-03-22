@@ -25,9 +25,9 @@ app.use(express.static(path.join(__dirname, "../client/dist")));
 app.use(compression());
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
-	let { username, password }: { username: string; password: string } = req.body;
+	let { username, password, penilaian }: { username: string; password: string; penilaian: { dosen: number; asdos: number } } = req.body;
 
-	if (!username || !password) {
+	if (!username || !password || !isNaN(penilaian.dosen) || !isNaN(penilaian.asdos)) {
 		res.sendStatus(400);
 		return;
 	}
@@ -45,7 +45,7 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
 	sendMessage(username, { status: "success", message: "Memulai presensi" });
 
 	try {
-		presensi(username, password).catch(async (error) => {
+		presensi(username, password, penilaian).catch(async (error) => {
 			console.error("Error dalam presensi:", error);
 
 			if (jobs[username]) {
@@ -70,7 +70,7 @@ server.listen(port, () => {
 	console.log(`Server berjalan di http://localhost:${port}`);
 });
 
-async function presensi(user: string, pass: string) {
+async function presensi(user: string, pass: string, penilaian: { dosen: number; asdos: number }) {
 	try {
 		let id: string;
 		id = sendMessage(user, { status: "loading", message: "Sedang login ke sistem" });
@@ -128,7 +128,7 @@ async function presensi(user: string, pass: string) {
 			});
 
 			try {
-				await validasi(cookie, course.id, user);
+				await validasi(cookie, course.id, user, penilaian);
 
 				sendMessage(user, {
 					status: "success",
@@ -209,7 +209,7 @@ async function getUnvalidatedCourses(cookie: string) {
 	return result;
 }
 
-async function validasi(cookie: string, idMakul: string, username: string) {
+async function validasi(cookie: string, idMakul: string, username: string, penilaian: { dosen: number; asdos: number }) {
 	const response = await axios.post(
 		"https://student.amikompurwokerto.ac.id/pembelajaran/getabsenmhs",
 		new URLSearchParams({
@@ -256,7 +256,7 @@ async function validasi(cookie: string, idMakul: string, username: string) {
 		});
 
 		try {
-			const result = await clickValidasi(cookie, v.id, v.teori, v.praktek, v.jenisKuliah);
+			const result = await clickValidasi(cookie, v.id, v.teori, v.praktek, v.jenisKuliah, penilaian);
 			results.push(result);
 
 			sendDetailMessage(username, {
@@ -282,7 +282,7 @@ async function validasi(cookie: string, idMakul: string, username: string) {
 	return { status: "success", message: "Berhasil validasi semua presensi", results };
 }
 
-async function clickValidasi(cookie: string, id: string, teori: string, praktek: string, jenisKuliah: string) {
+async function clickValidasi(cookie: string, id: string, teori: string, praktek: string, jenisKuliah: string, penilaian: { dosen: number; asdos: number }) {
 	const response = await axios("https://student.amikompurwokerto.ac.id/pembelajaran/ajax_editpresensi/" + id, {
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
@@ -295,6 +295,8 @@ async function clickValidasi(cookie: string, id: string, teori: string, praktek:
 
 	const form: { [key: string]: string } = {};
 
+	let dosenPenilaian = ["4", "3", "2", "1"];
+
 	form["jenispilih"] = jenisKuliah;
 	form["idpresensimhstexs"] = id_presensi_mhs;
 	form["idpresensidosen"] = id_presensi_dosen;
@@ -302,18 +304,23 @@ async function clickValidasi(cookie: string, id: string, teori: string, praktek:
 	form["kuliahpraktek"] = praktek;
 	form["kesesuaian_perkuliahan"] = "1";
 	form["kesesuaian_materi"] = "1";
-	form["penilaianmhs"] = "4";
+	form["penilaianmhs"] = dosenPenilaian[penilaian.dosen];
 	form["kritiksaran"] = "";
+
+	let asdosPenilaian1 = ["1", "2", "3", "4"];
+	let asdosPenilaian2 = ["5", "6", "7", "8"];
+	let asdosPenilaian3 = ["9", "10", "11", "12"];
+	let asdosPenilaian4 = ["13", "14", "15", "16"];
 
 	if (jenisKuliah == "praktek") {
 		let i = -1;
 		for (let v of response.data.asdoss) {
 			i++;
 			form["asdos_npms[]"] = v.npm;
-			form[`asdospenilaian_${i}_1`] = "1";
-			form[`asdospenilaian_${i}_2`] = "5";
-			form[`asdospenilaian_${i}_3`] = "9";
-			form[`asdospenilaian_${i}_4`] = "13";
+			form[`asdospenilaian_${i}_1`] = asdosPenilaian1[penilaian.asdos];
+			form[`asdospenilaian_${i}_2`] = asdosPenilaian2[penilaian.asdos];
+			form[`asdospenilaian_${i}_3`] = asdosPenilaian3[penilaian.asdos];
+			form[`asdospenilaian_${i}_4`] = asdosPenilaian4[penilaian.asdos];
 		}
 	}
 

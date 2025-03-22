@@ -4,3 +4,8 @@ export interface Message {
 	message: string;
 	delete?: boolean;
 }
+
+export interface Penilaian {
+	id: number;
+	value: string;
+}
