@@ -124,6 +124,8 @@ async function presensi(user: string, pass: string, penilaian: { dosen: number; 
 			message: "otw",
 		});
 
+		sendDetailMessage(user, { status: "success", message: "Memulai proses validasi" });
+
 		for await (let [i, course] of unValidated.entries()) {
 			sendMessage(user, {
 				id: id8,
@@ -157,6 +159,12 @@ async function presensi(user: string, pass: string, penilaian: { dosen: number; 
 		sendMessage(user, {
 			status: "success",
 			message: `Selesai memproses ${unValidated.length} mata kuliah`,
+		});
+
+		sendDetailMessage(user, {
+			id,
+			status: "success",
+			message: `Selesai validasi ${unValidated.length} presensi`,
 		});
 
 		delete jobs[user];
@@ -249,7 +257,6 @@ async function validasi(cookie: string, idMakul: string, username: string, penil
 	}
 
 	const results: { [key: string]: string }[] = [];
-	sendDetailMessage(username, { status: "success", message: "Memulai proses validasi" });
 	let id = sendDetailMessage(username, { status: "loading", message: "" });
 
 	for (const v of ids) {
@@ -276,12 +283,6 @@ async function validasi(cookie: string, idMakul: string, username: string, penil
 			}
 		}
 	}
-
-	sendDetailMessage(username, {
-		id,
-		status: "success",
-		message: `Selesai validasi ${ids.length} presensi`,
-	});
 
 	return { status: "success", message: "Berhasil validasi semua presensi", results };
 }
