@@ -145,7 +145,7 @@ export default function App() {
 
 					<AnimatePresence onExitComplete={handleSubmit}>
 						{!isLoading && (
-							<motion.div layout animate={{ height: isLoading ? 0 : "auto" }} exit={{ height: 0, transition: { delay: 1.6, duration: 2.1, type: "spring" } }} className="flex flex-col gap-4">
+							<motion.div layout animate={{ height: isLoading ? 0 : "auto" }} exit={{ height: 0, transition: { delay: 1.6, duration: 1.1, type: "tween" } }} className="flex flex-col gap-4">
 								<motion.div layout animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -40], opacity: [1, 0], transition: { delay: 0.6 }, height: 0 }} transition={{ type: "spring", delay: 0.9 }} className="flex flex-col gap-2">
 									<motion.label animate={{ x: [40, 0], opacity: [0, 1] }} exit={{ x: [0, -40], opacity: [1, 0], transition: { delay: 0.3 }, height: 0 }} transition={{ type: "spring", delay: 1.1 }} htmlFor="nim" className="text-sm">
 										Nomor Induk Mahasiswa
