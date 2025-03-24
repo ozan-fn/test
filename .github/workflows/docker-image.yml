@@ -22,11 +22,9 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         
     - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/test:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/test:latest
-          cache-to: type=inline
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/test:latest
     
