@@ -45,7 +45,7 @@ export default function App() {
 				return [...prev, data];
 			});
 
-			if (data.status === "success" && (data.message.includes("Selesai memproses") || data.message.includes("Tidak ada mata kuliah") || data.message.includes("validasi mata kuliah"))) {
+			if (data.status === "success" && (data.message?.includes("Selesai memproses") || data.message?.includes("Tidak ada mata kuliah") || data.message?.includes("validasi mata kuliah"))) {
 				setDone(true);
 			}
 
