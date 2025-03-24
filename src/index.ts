@@ -284,6 +284,11 @@ async function validasi(cookie: string, idMakul: string, username: string, penil
 		}
 	}
 
+	sendDetailMessage(username, {
+		id,
+		status: "success",
+	});
+
 	return { status: "success", message: "Berhasil validasi semua presensi", results };
 }
 
