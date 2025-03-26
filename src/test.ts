@@ -19,10 +19,10 @@ const semester = "2";
 
 const jobs: { [username: string]: boolean } = {};
 
-app.use(compression({ level: 9, memLevel: 9 }));
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/dist")));
+app.use(compression());
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
 	let { username, password, penilaian }: { username: string; password: string; penilaian: { dosen: number; asdos: number } } = req.body;
@@ -73,6 +73,92 @@ app.get("*", (_req, res) => {
 server.listen(port, () => {
 	console.log(`Server berjalan di http://localhost:${port}`);
 });
+
+class Presensi {
+	private username: string;
+	private password: string;
+	private penilaian: { dosen: number; asdos: number };
+	private cookie: string | null = null;
+	private ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36";
+
+	constructor(username: string, password: string, penilaian: { dosen: number; asdos: number }) {
+		this.username = username;
+		this.password = password;
+		this.penilaian = penilaian;
+	}
+
+	public async start() {
+		let id = sendMessage(this.username, { status: "loading", message: "Sedang login ke sistem" });
+		await this.login();
+		sendMessage(this.username, { id, status: "success", message: "Sedang login ke sistem" });
+
+		id = sendMessage(this.username, { id, status: "loading", message: "Sedang login ke sistem" });
+		await this.getUnvalidatedCourses();
+		sendMessage(this.username, { id, status: "success", message: "Sedang login ke sistem" });
+	}
+
+	private async login() {
+		const data = `pengguna=${this.username}&passw=${this.password}`;
+		const response = await axios.post("https://student.amikompurwokerto.ac.id/auth/toenter", data, {
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+				"User-Agent": this.ua,
+			},
+		});
+
+		if (response.data !== "111") {
+			return new Error("Login gagal! Periksa kembali username dan password Anda.");
+		}
+
+		const cookie = response.headers["set-cookie"]?.find((f) => f.includes("ci_session="))?.match(/(^ci_session=.+?);/)?.[1];
+
+		if (!cookie) {
+			return new Error("Tidak dapat memperoleh cookie sesi");
+		}
+
+		this.cookie = cookie;
+	}
+
+	private async getUnvalidatedCourses() {
+		const [resp1, resp2] = await Promise.all([
+			axios.post("https://student.amikompurwokerto.ac.id/pembelajaran/list_makul_belum_validasi", null, {
+				headers: {
+					Cookie: this.cookie,
+					"User-Agent": this.ua,
+				},
+			}),
+			axios.post("https://student.amikompurwokerto.ac.id/pembelajaran/getmakul", `thn_akademik=${tahunAkademik}&semester=${semester}`, {
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+					Cookie: this.cookie,
+					"User-Agent": this.ua,
+				},
+			}),
+		]);
+		const makulMap: [string, string][] = [];
+		const $ = cheerio.load(resp2.data);
+		$("option").each((_, el) => {
+			const val = $(el).attr("value");
+			if (!val) return;
+			const text = $(el).text();
+			makulMap.push([val, text]);
+		});
+		const result: { id: string; makul: string; count: number }[] = [];
+		for (let v of Object.keys(resp1.data)) {
+			for (let p of makulMap) {
+				if (p[0].includes(v)) {
+					result.push({ id: p[0], makul: p[1], count: resp1.data[v].count });
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+	private async getValidasi() {}
+
+	private async validasi() {}
+}
 
 async function presensi(user: string, pass: string, penilaian: { dosen: number; asdos: number }) {
 	try {
@@ -283,11 +369,6 @@ async function validasi(cookie: string, idMakul: string, username: string, penil
 			}
 		}
 	}
-
-	sendDetailMessage(username, {
-		id,
-		status: "success",
-	});
 
 	return { status: "success", message: "Berhasil validasi semua presensi", results };
 }
