@@ -19,7 +19,7 @@ const semester = "2";
 
 const jobs: { [username: string]: boolean } = {};
 
-app.use(compression({ level: 9, memLevel: 9 }));
+// app.use(compression({ level: 9, memLevel: 9 }));
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/dist")));
