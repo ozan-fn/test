@@ -104,7 +104,7 @@ export default function App() {
 			</motion.h3>
 
 			<motion.p animate={{ opacity: [0, 1] }} transition={{ delay: 0.6, duration: 0.5 }} className="mt-1 text-sm">
-				Powered by: TypeScript, Express.js, React.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker, Vite, Framer Motion, Alpine Linux
+				Powered by: TypeScript, Express.js, React.js, Socket.IO, TailwindCSS, Axios, Cheerio, Bun, Docker, Vite, Framer Motion, Alpine Linux, NGINX Reverse Proxy.
 			</motion.p>
 
 			{/* Menambahkan container dengan overflow-visible untuk elemen absolute */}
