@@ -14,7 +14,7 @@ COPY ./package.json ./
 COPY ./bun.lock ./
 RUN bun install 
 COPY ./ ./
-COPY --from=base /app/dist ./client/dist
+COPY --from=base /app/out ./client/out
 RUN bun run build
 ENV NODE_ENV=production
 ENV PORT=4000

@@ -22,7 +22,7 @@ const jobs: { [username: string]: boolean } = {};
 app.use(compression({ level: 9, memLevel: 9 }));
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../client/dist")));
+app.use(express.static(path.join(__dirname, "../client/out")));
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
 	let { username, password, penilaian }: { username: string; password: string; penilaian: { dosen: number; asdos: number } } = req.body;
@@ -67,7 +67,7 @@ app.get("/favicon.ico", (_req, res) => {
 });
 
 app.get("*", (_req, res) => {
-	return res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+	return res.sendFile(path.join(__dirname, "../client/out/404.html"));
 });
 
 server.listen(port, () => {
