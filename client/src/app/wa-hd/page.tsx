@@ -20,6 +20,20 @@ async function toBlobURL(url: string, cb?: (progress: number) => void) {
 	return blobURL;
 }
 
+function parsePhoneNumber(phoneNumber: string) {
+	let cleanedNumber = phoneNumber.replace(/\D/g, "");
+
+	if (cleanedNumber.startsWith("0")) {
+		cleanedNumber = "62" + cleanedNumber.slice(1);
+	}
+
+	if (!/^(\d{8,})$/.test(cleanedNumber)) {
+		throw new Error("Invalid phone number format");
+	}
+
+	return `${cleanedNumber}`;
+}
+
 export default function Page() {
 	const input = useRef<HTMLInputElement>(null);
 	const [ffmpeg, setFfmpeg] = useState<FFmpeg | null>(null);
@@ -30,6 +44,8 @@ export default function Page() {
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [teruskan, setTeruskan] = useState("");
 	const [selectedQuality, setSelectedQuality] = useState("720");
+	const [nowa, setNowa] = useState("");
+	const [caption, setCaption] = useState("");
 
 	async function loadFFmpeg() {
 		if (ffmpeg) return;
@@ -80,27 +96,28 @@ export default function Page() {
 	}
 
 	async function uploadToServer() {
-		if (!outputURL) return;
+		if (!teruskan) return;
 
-		// try {
-		// 	const response = await fetch(outputURL);
-		// 	const blob = await response.blob();
-		// 	const formData = new FormData();
-		// 	formData.append("file", blob, selectedFile?.name || "converted-file");
+		try {
+			const response = await fetch(teruskan);
+			const blob = await response.blob();
+			const formData = new FormData();
+			formData.append("file", blob, selectedFile?.name || "converted-file");
+			formData.append("nowa", parsePhoneNumber(nowa));
+			formData.append("caption", caption);
 
-		// 	const uploadResponse = await axios.post(serverUrl, formData, {
-		// 		headers: {
-		// 			"Content-Type": "multipart/form-data",
-		// 		},
-		// 	});
+			const uploadResponse = await axios.post("http://localhost:4000/api/wa-hd", formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
 
-		// 	console.log("Upload response:", uploadResponse);
-		// 	alert("File berhasil dikirim ke server!");
-		// 	setShowModal(false);
-		// } catch (error) {
-		// 	console.error("Upload error:", error);
-		// 	alert("Gagal mengirim file ke server.");
-		// }
+			console.log("Upload response:", uploadResponse);
+			alert("File berhasil dikirim ke server!");
+		} catch (error) {
+			console.error("Upload error:", error);
+			alert("Gagal mengirim file ke server.");
+		}
 	}
 
 	useEffect(() => {
@@ -209,7 +226,7 @@ export default function Page() {
 
 								<button
 									onClick={() => {
-										setTeruskan(outputURL);
+										setTeruskan(selectedFileURL!);
 									}}
 									disabled={isProcessing}
 									className="px-3 mt-4 w-fit py-2 rounded-md bg-black/80 text-white/80 cursor-pointer shadow-sm shadow-black/80 disabled:bg-black/70 disabled:cursor-not-allowed"
@@ -228,13 +245,16 @@ export default function Page() {
 						<h3 className="text-xl font-bold mb-4">Kirim ke Server</h3>
 						<div className="flex flex-col gap-2 mb-6">
 							<label htmlFor="p">No Whatsapp</label>
-							<input type="text" className="h-10 px-3 border rounded-md border-black/80" />
+							<input type="text" id="p" onChange={(e) => setNowa(e.target.value)} value={nowa} className="py-2 px-3 border rounded-md border-black/80" />
+
+							<label htmlFor="c">Caption</label>
+							<textarea id="c" rows={2} onChange={(e) => setCaption(e.target.value)} value={caption} className="px-3 py-2 border rounded-md border-black/80" />
 						</div>
 						<div className="flex justify-end gap-2">
 							<button onClick={() => setTeruskan("")} className="px-4 py-2 border border-gray-300 rounded-md">
 								Batal
 							</button>
-							<button onClick={uploadToServer} className="px-4 py-2 bg-black/80 text-white rounded-md">
+							<button onClick={() => uploadToServer()} className="px-4 py-2 bg-black/80 text-white rounded-md">
 								Kirim
 							</button>
 						</div>

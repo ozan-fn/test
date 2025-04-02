@@ -8,10 +8,13 @@ import http from "http";
 import compression from "compression";
 import { Message } from "../client/src/types/index";
 import cors from "cors";
+import multer from "multer";
+import { sendPhoto, sendVideo } from "./lib/wa";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
+const upload = multer({ storage: multer.memoryStorage() });
 
 const port = process.env.PORT || 4000;
 const tahunAkademik = "2024/2025";
@@ -58,6 +61,29 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
 	} catch (error) {
 		delete jobs[username];
 		res.sendStatus(500);
+	}
+});
+
+app.post("/api/wa-hd", upload.single("file"), (req, res) => {
+	try {
+		const file = req.file;
+		const body = req.body;
+
+		if (!file || !body.nowa) {
+			res.status(400).send({ message: "file, nowa, caption" });
+			return;
+		}
+
+		if (file.mimetype.includes("video/")) {
+			sendVideo(body.nowa + "@s.whatsapp.net", file.buffer, body.caption);
+		} else {
+			sendPhoto(body.nowa + "@s.whatsapp.net", file.buffer, body.caption);
+		}
+
+		res.status(200).send({ message: "File processed successfully", file: file.originalname });
+	} catch (error) {
+		console.error("Error processing file:", error);
+		res.status(500).send({ message: "Error processing file", error });
 	}
 });
 
