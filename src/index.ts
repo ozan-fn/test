@@ -22,7 +22,6 @@ const jobs: { [username: string]: boolean } = {};
 app.use(compression({ level: 9, memLevel: 9 }));
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../client/out")));
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
 	let { username, password, penilaian }: { username: string; password: string; penilaian: { dosen: number; asdos: number } } = req.body;
@@ -65,6 +64,18 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
 app.get("/favicon.ico", (_req, res) => {
 	res.status(204).end(); // Tidak mengirimkan konten untuk favicon
 });
+
+app.use((_req, res, next) => {
+	res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+	res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+	next();
+});
+
+app.use(
+	express.static(path.join(__dirname, "../client/out"), {
+		extensions: ["html"],
+	})
+);
 
 app.get("*", (_req, res) => {
 	return res.sendFile(path.join(__dirname, "../client/out/404.html"));
