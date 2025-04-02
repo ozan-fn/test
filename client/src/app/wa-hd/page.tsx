@@ -99,6 +99,7 @@ export default function Page() {
 
 	async function uploadToServer() {
 		if (!teruskan) return;
+		setIsProcessing(true);
 
 		try {
 			const response = await fetch(teruskan);
@@ -119,6 +120,8 @@ export default function Page() {
 		} catch (error) {
 			console.error("Upload error:", error);
 			alert("Gagal mengirim file ke server.");
+		} finally {
+			setIsProcessing(false);
 		}
 	}
 
@@ -253,10 +256,10 @@ export default function Page() {
 							<textarea id="c" rows={2} onChange={(e) => setCaption(e.target.value)} value={caption} className="px-3 py-2 border rounded-md border-black/80" />
 						</div>
 						<div className="flex justify-end gap-2">
-							<button onClick={() => setTeruskan("")} className="px-4 py-2 border border-gray-300 rounded-md">
+							<button onClick={() => setTeruskan("")} className="px-4 py-2 border border-gray-300 rounded-md cursor-pointer">
 								Batal
 							</button>
-							<button onClick={() => uploadToServer()} className="px-4 py-2 bg-black/80 text-white rounded-md">
+							<button onClick={() => uploadToServer()} disabled={isProcessing} className="px-4 py-2 bg-black/80 cursor-pointer text-white rounded-md disabled:bg-black/70 disabled:cursor-not-allowed">
 								Kirim
 							</button>
 						</div>

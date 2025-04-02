@@ -1,3 +1,7 @@
+import dotenv from "dotenv-safe";
+
+dotenv.config({ allowEmptyValues: false });
+
 import * as cheerio from "cheerio";
 import express, { Request, Response } from "express";
 import axios from "axios";
@@ -22,8 +26,8 @@ const semester = "2";
 
 const jobs: { [username: string]: boolean } = {};
 
-app.use(compression({ level: 9, memLevel: 9 }));
-app.use(cors());
+app.use(cors({ origin: ["http://localhost:3000", "http://localhost:4000", "https://presensi.ozan.my.id"] }));
+app.use(compression());
 app.use(express.json());
 
 app.post("/api/presensi", async (req: Request, res: Response) => {
@@ -64,27 +68,36 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
 	}
 });
 
+const queue: (() => void)[] = [];
+
 app.post("/api/wa-hd", upload.single("file"), (req, res) => {
-	try {
-		const file = req.file;
-		const body = req.body;
+	queue.push(() => {
+		try {
+			const file = req.file;
+			const body = req.body;
 
-		if (!file || !body.nowa) {
-			res.status(400).send({ message: "file, nowa, caption" });
-			return;
+			if (!file || !body.nowa) {
+				res.status(400).send({ message: "file, nowa, caption" });
+				return;
+			}
+
+			if (file.mimetype.includes("video/")) {
+				sendVideo(body.nowa + "@s.whatsapp.net", file.buffer);
+			} else {
+				sendPhoto(body.nowa + "@s.whatsapp.net", file.buffer);
+			}
+
+			res.status(200).send({ message: "File processed successfully", file: file.originalname });
+		} catch (error) {
+			console.error("Error processing file:", error);
+			res.status(500).send({ message: "Error processing file", error });
+		} finally {
+			queue.shift();
+			if (queue.length > 0) queue[0]();
 		}
+	});
 
-		if (file.mimetype.includes("video/")) {
-			sendVideo(body.nowa + "@s.whatsapp.net", file.buffer, body.caption);
-		} else {
-			sendPhoto(body.nowa + "@s.whatsapp.net", file.buffer, body.caption);
-		}
-
-		res.status(200).send({ message: "File processed successfully", file: file.originalname });
-	} catch (error) {
-		console.error("Error processing file:", error);
-		res.status(500).send({ message: "Error processing file", error });
-	}
+	if (queue.length === 1) queue[0]();
 });
 
 app.get("/favicon.ico", (_req, res) => {

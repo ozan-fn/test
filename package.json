@@ -12,6 +12,8 @@
     "cheerio": "^1.0.0",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "dotenv-safe": "^9.1.0",
     "express": "^4.21.2",
     "multer": "^1.4.5-lts.2",
     "pino": "^9.6.0",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@types/compression": "^1.7.5",
+    "@types/dotenv-safe": "^8.1.6",
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.13.10",
