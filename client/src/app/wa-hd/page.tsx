@@ -231,7 +231,7 @@ export default function Page() {
 
 								<button
 									onClick={() => {
-										setTeruskan(selectedFileURL!);
+										setTeruskan(outputURL);
 									}}
 									disabled={isProcessing}
 									className="px-3 mt-4 w-fit py-2 rounded-md bg-black/80 text-white/80 cursor-pointer shadow-sm shadow-black/80 disabled:bg-black/70 disabled:cursor-not-allowed"
@@ -252,8 +252,8 @@ export default function Page() {
 							<label htmlFor="p">No Whatsapp</label>
 							<input type="text" id="p" onChange={(e) => setNowa(e.target.value)} value={nowa} className="py-2 px-3 border rounded-md border-black/80" />
 
-							<label htmlFor="c">Caption</label>
-							<textarea id="c" rows={2} onChange={(e) => setCaption(e.target.value)} value={caption} className="px-3 py-2 border rounded-md border-black/80" />
+							{/* <label htmlFor="c">Caption</label>
+							<textarea id="c" rows={2} onChange={(e) => setCaption(e.target.value)} value={caption} className="px-3 py-2 border rounded-md border-black/80" /> */}
 						</div>
 						<div className="flex justify-end gap-2">
 							<button onClick={() => setTeruskan("")} className="px-4 py-2 border border-gray-300 rounded-md cursor-pointer">
