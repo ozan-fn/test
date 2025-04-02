@@ -7,6 +7,8 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { IconFilePlus, IconX } from "@tabler/icons-react";
 
+const API = process.env.NODE_ENV === "production" ? "" : "http://localhost:4000";
+
 async function toBlobURL(url: string, cb?: (progress: number) => void) {
 	const response = await axios.get(url, {
 		responseType: "blob",
@@ -106,7 +108,7 @@ export default function Page() {
 			formData.append("nowa", parsePhoneNumber(nowa));
 			formData.append("caption", caption);
 
-			const uploadResponse = await axios.post("http://localhost:4000/api/wa-hd", formData, {
+			const uploadResponse = await axios.post(API + "/api/wa-hd", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
