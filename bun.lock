@@ -3,6 +3,7 @@
   "workspaces": {
     "": {
       "dependencies": {
+        "": ".",
         "@trpc/server": "^11.0.1",
         "axios": "^1.8.3",
         "baileys": "^6.7.16",
@@ -33,6 +34,8 @@
     "protobufjs",
   ],
   "packages": {
+    "": ["@file:", { "dependencies": { "@trpc/server": "^11.0.1", "axios": "^1.8.3", "baileys": "^6.7.16", "cheerio": "^1.0.0", "compression": "^1.8.0", "cors": "^2.8.5", "dotenv": "^16.4.7", "dotenv-safe": "^9.1.0", "express": "^4.21.2", "multer": "^1.4.5-lts.2", "pino": "^9.6.0", "qrcode-terminal": "^0.12.0", "socket.io": "^4.8.1", "uuid": "^11.1.0", "zod": "^3.24.2" }, "devDependencies": { "@types/compression": "^1.7.5", "@types/dotenv-safe": "^8.1.6", "@types/express": "^5.0.0", "@types/multer": "^1.4.12", "@types/node": "^22.13.10", "typescript": "^5.8.2" } }],
+
     "@adiwajshing/keyed-db": ["@adiwajshing/keyed-db@0.2.4", "", {}, "sha512-yprSnAtj80/VKuDqRcFFLDYltoNV8tChNwFfIgcf6PGD4sjzWIBgs08pRuTqGH5mk5wgL6PBRSsMCZqtZwzFEw=="],
 
     "@cacheable/node-cache": ["@cacheable/node-cache@1.5.3", "", { "dependencies": { "cacheable": "^1.8.9", "hookified": "^1.7.1", "keyv": "^5.3.1" } }, "sha512-xJCYqoxkwg8vpQ/wSv0p4o+j/VEEnP7TUDUsV+VoPVVuwpsUKxU0wyz+VWBbq0SbX6e/oi/jiR/LDQ46miDQ8A=="],

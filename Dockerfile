@@ -1,17 +1,15 @@
 # base
 FROM oven/bun:alpine AS base
 WORKDIR /app
-COPY ./client/package.json ./
-COPY ./client/bun.lock ./
+COPY ./client/package.json ./client/bun.lock ./
 RUN bun install
 COPY ./client /app
-RUN bun -b run build
+RUN bun run build
 
 # deploy
 FROM oven/bun:alpine
 WORKDIR /app
-COPY ./package.json ./
-COPY ./bun.lock ./
+COPY ./package.json ./bun.lock ./
 RUN bun install 
 COPY ./ ./
 COPY --from=base /app/out ./client/out
