@@ -22,7 +22,6 @@ async function main() {
 		},
 		printQRInTerminal: true,
 		msgRetryCounterCache,
-		markOnlineOnConnect: false,
 		logger,
 	});
 
