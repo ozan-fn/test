@@ -173,7 +173,7 @@ export default function App() {
 												return (
 													<div onClick={() => setPDosen(i)} key={i} className="relative flex cursor-pointer items-center justify-center rounded-sm border border-[#8C6A43] py-2 text-center text-sm">
 														{i === pDosen && <motion.div layoutId="ps8us" transition={{ duration: 0.9, type: "spring" }} className="absolute h-full w-full bg-[#7BA05B]" />}
-														<motion.p key={pDosen} className="shdow-lg relative rounded-sm text-white">
+														<motion.p key={pDosen} className={`shdow-lg relative rounded-sm ${i !== pDosen ? "" : "text-white"}`}>
 															{v}
 														</motion.p>
 													</div>
@@ -191,7 +191,7 @@ export default function App() {
 												return (
 													<div onClick={() => setPAsdos(i)} key={i} className="relative flex cursor-pointer items-center justify-center rounded-sm border border-[#8C6A43] py-2 text-center text-sm">
 														{i === pAsdos && <motion.div layoutId="ps8u" transition={{ duration: 0.9, type: "spring" }} className="absolute h-full w-full bg-[#7BA05B]" />}
-														<motion.p key={pAsdos} className="shdow-lg relative rounded-sm text-white">
+														<motion.p key={pAsdos} className={`shdow-lg relative rounded-sm ${i !== pAsdos ? "" : "text-white"}`}>
 															{v}
 														</motion.p>
 													</div>
