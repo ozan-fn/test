@@ -13,7 +13,6 @@ import compression from "compression";
 import { Message } from "../client/src/types/index";
 import cors from "cors";
 import multer from "multer";
-import { sendPhoto, sendVideo } from "./lib/wa";
 
 const app = express();
 const server = http.createServer(app);
@@ -68,46 +67,8 @@ app.post("/api/presensi", async (req: Request, res: Response) => {
 	}
 });
 
-const queue: (() => void)[] = [];
-
-app.post("/api/wa-hd", upload.single("file"), (req, res) => {
-	queue.push(() => {
-		try {
-			const file = req.file;
-			const body = req.body;
-
-			if (!file || !body.nowa) {
-				res.status(400).send({ message: "file, nowa, caption" });
-				return;
-			}
-
-			if (file.mimetype.includes("video/")) {
-				sendVideo(body.nowa + "@s.whatsapp.net", file.buffer);
-			} else {
-				sendPhoto(body.nowa + "@s.whatsapp.net", file.buffer);
-			}
-
-			res.status(200).send({ message: "File processed successfully", file: file.originalname });
-		} catch (error) {
-			console.error("Error processing file:", error);
-			res.status(500).send({ message: "Error processing file", error });
-		} finally {
-			queue.shift();
-			if (queue.length > 0) queue[0]();
-		}
-	});
-
-	if (queue.length === 1) queue[0]();
-});
-
 app.get("/favicon.ico", (_req, res) => {
-	res.status(204).end(); // Tidak mengirimkan konten untuk favicon
-});
-
-app.use((_req, res, next) => {
-	res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-	res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-	next();
+	res.status(204).end();
 });
 
 app.use(
