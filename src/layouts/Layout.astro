@@ -1,0 +1,41 @@
+---
+import '../styles/global.css'
+import { ClientRouter } from 'astro:transitions';
+
+const path = Astro.url.pathname;
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro Basics</title>
+		<ClientRouter />
+	</head>
+	<body class="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
+		<nav class="flex items-center gap-6 border-b border-zinc-800 px-6 py-4">
+			<span class="font-semibold">nitrot</span>
+			{navItems.map((item) => (
+				<a
+					href={item.href}
+					class={`text-sm transition hover:text-sky-400 ${
+						path === item.href ? 'text-sky-400' : 'text-zinc-400'
+					}`}
+				>
+					{item.label}
+				</a>
+			))}
+		</nav>
+		<main class="px-6 py-8" transition:name="root" transition:animate="none">
+			<slot />
+		</main>
+	</body>
+</html>
