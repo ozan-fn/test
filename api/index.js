@@ -1,9 +1,11 @@
 const { createServer, request } = require('http');
 const { spawn } = require('child_process');
 const { chmodSync } = require('fs'); // Panggil modul File System
+const path = require('path');
 
-const binPath = './frankenphp';
-
+// Ini akan selalu menunjuk ke file frankenphp di folder utama
+const binPath = path.join(process.cwd(), 'frankenphp');
+    
 // Beri izin eksekusi (setara dengan chmod +x atau chmod 755)
 chmodSync(binPath, '755');
 
