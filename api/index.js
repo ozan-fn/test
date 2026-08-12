@@ -1,27 +1,30 @@
-const { createServer, request } = require('http');
-const { spawn } = require('child_process');
-const { chmodSync } = require('fs'); // Panggil modul File System
-const path = require('path');
+const { spawn } = require("child_process");
 
-// Ini akan selalu menunjuk ke file frankenphp di folder utama
-const binPath = path.join(process.cwd(), 'frankenphp');
-    
-// Beri izin eksekusi (setara dengan chmod +x atau chmod 755)
-chmodSync(binPath, '755');
+const port = process.env.PORT || "8080";
 
-// 1. Jalankan FrankenPHP (tambahkan --root jika beda folder)
-spawn(binPath, ['php-server', '--listen', ':11365', '--root', './phpMyAdmin-5.2.3-english'], { stdio: 'inherit' });
+const args = [
+  "php-server",
+  "-r",
+  "phpMyAdmin-5.2.3-english/",
+  "-l",
+  `:${port}`,
+];
 
-// 2. Buat Reverse Proxy Super Singkat
-createServer((req, res) => {
-    req.pipe(request({
-        hostname: '127.0.0.1',
-        port: 11365,
-        path: req.url,
-        method: req.method,
-        headers: req.headers
-    }, (proxyRes) => {
-        res.writeHead(proxyRes.statusCode, proxyRes.headers);
-        proxyRes.pipe(res);
-    })).on('error', () => res.writeHead(502).end('FrankenPHP mati.'));
-}).listen(3000, () => console.log('Web siap dibuka di http://localhost:3000\n'));
+const server = spawn("./frankenphp", args, {
+  stdio: "inherit",
+  shell: false,
+});
+
+server.on("error", (err) => {
+  console.error("Failed to start FrankenPHP:", err);
+  process.exit(1);
+});
+
+server.on("exit", (code, signal) => {
+  if (signal) {
+    console.log(`FrankenPHP stopped by signal ${signal}`);
+    process.exit(1);
+  }
+
+  process.exit(code ?? 0);
+});
