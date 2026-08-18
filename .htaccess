@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Mencegah akses langsung ke folder internal di luar public
+    # Jika request belum mengarah ke folder public/
+    RewriteCond %{REQUEST_URI} !^/public/
+
+    # Rewrite semua request ke dalam folder public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
